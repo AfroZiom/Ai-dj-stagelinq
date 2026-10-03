@@ -1,0 +1,7 @@
+{
+  "appId": "pl.aidj.assistant",
+  "appName": "AI DJ Assistant",
+  "webDir": "www",
+  "backgroundColor": "#0b0b10",
+  "android": { "allowMixedContent": false }
+}

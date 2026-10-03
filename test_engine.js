@@ -1,0 +1,22 @@
+const E = require("./www/engine.js"), fs = require("fs"), assert = require("assert");
+const LIB = JSON.parse(fs.readFileSync("./www/demo.js","utf8").split("window.DEMO_LIB=")[1].replace(/;\s*$/,"")); LIB.forEach((t, i) => t.id = i + 1);
+const CUR = {id: 999, bpm: 128, key: "8A", energy: 84, genre: "Commercial Dance", year: 2014};
+let ok = 0; const T = (n, f) => { try { f(); ok++; console.log("PASS", n); } catch (e) { console.log("FAIL", n, e.message); process.exitCode = 1; } };
+T("keys", () => { assert.equal(E.normalizeKey("Am"), "8A"); assert.equal(E.normalizeKey("C major"), "8B"); assert.equal(E.normalizeKey("Bb"), "6B"); assert.equal(E.normalizeKey("F#m"), "11A"); assert.equal(E.normalizeKey("xyz"), null); });
+T("midnight curve", () => { assert(E.nightCurve(23) > E.nightCurve(22)); assert(E.nightCurve(0) > E.nightCurve(23)); assert(E.nightCurve(2) > E.nightCurve(4)); });
+T("relative energy", () => { assert.equal(E.energyTarget("MAIN", 1, [84], null, 12, 84), 96); });
+T("commands", () => {
+  const p = E.parseCommand;
+  assert.equal(p("Zejdź z energii o 10%").energy_delta, -10); assert(p("lower energy").energy_delta < 0); assert.equal(p("Zwiększ energię").energy_delta, 12);
+  assert(p("Nie zmieniaj BPM").bpm_lock); assert.deepEqual(p("Przejdź do hip-hopu").genres, ["hip-hop"]);
+  const m = p("Przejdź z house do commercial"); assert.deepEqual(m.exclude_genres, ["house"]); assert.deepEqual(m.genres, ["commercial"]);
+  assert.equal(p("Zostań w latach 2000").era, "2000s"); assert.equal(p("Daj coś, co wszyscy znają").commercial, 2);
+  assert.equal(p("Potrzebuję teraz czegoś bardziej komercyjnego").commercial, 1); assert.equal(p("Not Commercial Enough").commercial, 1); assert.equal(p("Too commercial").commercial, -1);
+  assert(p("Zaskocz mnie czymś innym").surprise); assert(p("PARKIET UMIERA").emergency); assert(p("mocny peak time").peak); assert(!p("after peak").peak);
+});
+T("recommend up", () => { const ctx = {mode: "MAIN", hour: 1.7, mods: E.parseCommand("zwiększ energię"), played_ids: []}; const [top] = E.recommend(LIB, CUR, ctx);
+  assert.equal(top.length, 5); assert(top.reduce((a, t) => a + t._energy_change, 0) / 5 > 0); });
+T("relax on missing genre", () => { const [top, lvl] = E.recommend(LIB, CUR, {mode: "MAIN", mods: E.parseCommand("Przejdź do rocka"), played_ids: []}); assert.equal(top.length, 5); assert(lvl >= 1); });
+T("null safety", () => { const bad = {id: 5, artist: null, bpm: null, energy: null, genre: null}; const [s] = E.scoreTrack(bad, CUR, {mode: "MAIN", hour: 1, history: [{artist: null}]}); assert(s >= 0 && s <= 100); assert.deepEqual(E.detectIssues([{artist: null}, {artist: null}]), []); });
+T("next5", () => { const seq = E.planNext5(LIB, CUR, {mode: "MAIN", hour: 1.7, mods: E.parseCommand("nie zmieniaj bpm zwiększ energię"), played_ids: []}); assert(seq.length >= 3); assert.equal(new Set(seq.map(x => x.id)).size, seq.length); });
+console.log(ok + " passed");
