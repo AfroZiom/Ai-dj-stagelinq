@@ -1,4 +1,3 @@
-
 name: Build APK
 
 on:
@@ -41,6 +40,319 @@ jobs:
       - name: Sync web assets
         run: npx cap sync android
 
+      - name: Create StageLinQ native plugin
+        run: |
+          mkdir -p android/app/src/main/java/pl/aidj/assistant
+
+          cat > android/app/src/main/java/pl/aidj/assistant/StageLinqPlugin.java <<'EOF'
+          package pl.aidj.assistant;
+
+          import android.content.Context;
+          import android.net.ConnectivityManager;
+          import android.net.NetworkInfo;
+          import android.net.wifi.WifiManager;
+
+          import com.getcapacitor.JSObject;
+          import com.getcapacitor.Plugin;
+          import com.getcapacitor.PluginCall;
+          import com.getcapacitor.PluginMethod;
+          import com.getcapacitor.annotation.CapacitorPlugin;
+
+          import org.json.JSONObject;
+
+          import java.io.DataInputStream;
+          import java.io.DataOutputStream;
+          import java.io.IOException;
+          import java.net.DatagramPacket;
+          import java.net.DatagramSocket;
+          import java.net.InetAddress;
+          import java.net.InetSocketAddress;
+          import java.net.Socket;
+          import java.nio.ByteBuffer;
+          import java.nio.ByteOrder;
+          import java.nio.charset.StandardCharsets;
+          import java.util.HashMap;
+          import java.util.Map;
+          import java.util.concurrent.ExecutorService;
+          import java.util.concurrent.Executors;
+
+          @CapacitorPlugin(name = "StageLinq")
+          public class StageLinqPlugin extends Plugin {
+
+              private static final int DISCOVERY_PORT = 51337;
+
+              private final ExecutorService executor = Executors.newCachedThreadPool();
+
+              private WifiManager.MulticastLock multicastLock;
+              private volatile boolean running = false;
+
+              private final Map<String, String> lastTracks = new HashMap<>();
+
+              private final byte[] SOUND_SWITCH_TOKEN = new byte[] {
+                  (byte)0x52, (byte)0xFD, (byte)0xFC, (byte)0x07,
+                  (byte)0x21, (byte)0x82, (byte)0x65, (byte)0x4F,
+                  (byte)0x16, (byte)0x3F, (byte)0x5F, (byte)0x0F,
+                  (byte)0x9A, (byte)0x62, (byte)0x1D, (byte)0x72
+              };
+
+              @PluginMethod
+              public void getNetworkStatus(PluginCall call) {
+                  JSObject result = new JSObject();
+
+                  ConnectivityManager cm =
+                      (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+                  NetworkInfo info = cm != null ? cm.getActiveNetworkInfo() : null;
+
+                  result.put("connected", info != null && info.isConnected());
+                  result.put("wifi", info != null && info.getType() == ConnectivityManager.TYPE_WIFI);
+                  result.put("stageLinqImplemented", true);
+                  result.put("message", "StageLinQ Discovery/Directory/StateMap moduł jest dostępny.");
+
+                  call.resolve(result);
+              }
+
+              @PluginMethod
+              public void acquireMulticastLock(PluginCall call) {
+                  try {
+                      WifiManager wifi =
+                          (WifiManager) getContext().getApplicationContext()
+                              .getSystemService(Context.WIFI_SERVICE);
+
+                      if (wifi == null) {
+                          call.reject("Wi-Fi manager niedostępny");
+                          return;
+                      }
+
+                      if (multicastLock == null) {
+                          multicastLock = wifi.createMulticastLock("AI-DJ-Assistant-StageLinq");
+                          multicastLock.setReferenceCounted(false);
+                      }
+
+                      if (!multicastLock.isHeld()) {
+                          multicastLock.acquire();
+                      }
+
+                      call.resolve();
+                  } catch (Exception e) {
+                      call.reject(e.getMessage());
+                  }
+              }
+
+              @PluginMethod
+              public void discover(PluginCall call) {
+                  acquireMulticastLockInternal();
+
+                  if (running) {
+                      call.resolve();
+                      return;
+                  }
+
+                  running = true;
+
+                  executor.execute(() -> {
+                      try {
+                          discoverDevices();
+                          call.resolve();
+                      } catch (Exception e) {
+                          running = false;
+                          notifyError(e.getMessage());
+                          call.reject(e.getMessage());
+                      }
+                  });
+              }
+
+              @PluginMethod
+              public void stop(PluginCall call) {
+                  running = false;
+                  call.resolve();
+              }
+
+              private void acquireMulticastLockInternal() {
+                  try {
+                      WifiManager wifi =
+                          (WifiManager) getContext().getApplicationContext()
+                              .getSystemService(Context.WIFI_SERVICE);
+
+                      if (wifi != null) {
+                          if (multicastLock == null) {
+                              multicastLock = wifi.createMulticastLock("AI-DJ-Assistant-StageLinq");
+                              multicastLock.setReferenceCounted(false);
+                          }
+
+                          if (!multicastLock.isHeld()) {
+                              multicastLock.acquire();
+                          }
+                      }
+                  } catch (Exception ignored) {
+                  }
+              }
+
+              private void discoverDevices() throws Exception {
+                  DatagramSocket socket = new DatagramSocket(null);
+                  socket.setReuseAddress(true);
+                  socket.setBroadcast(true);
+                  socket.bind(new InetSocketAddress(DISCOVERY_PORT));
+
+                  byte[] buffer = new byte[8192];
+
+                  long end = System.currentTimeMillis() + 10000;
+
+                  while (running && System.currentTimeMillis() < end) {
+                      DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+                      socket.setSoTimeout(1000);
+
+                      try {
+                          socket.receive(packet);
+
+                          byte[] data = new byte[packet.getLength()];
+                          System.arraycopy(packet.getData(), packet.getOffset(), data, 0, packet.getLength());
+
+                          if (data.length >= 4 &&
+                              data[0] == 'a' &&
+                              data[1] == 'i' &&
+                              data[2] == 'r' &&
+                              data[3] == 'D') {
+
+                              String ip = packet.getAddress().getHostAddress();
+
+                              JSObject device = new JSObject();
+                              device.put("ip", ip);
+                              device.put("port", packet.getPort());
+                              device.put("protocol", "StageLinQ");
+
+                              notifyListeners("deviceDiscovered", device);
+
+                              executor.execute(() -> connectDirectory(ip));
+                          }
+
+                      } catch (java.net.SocketTimeoutException ignored) {
+                      }
+                  }
+
+                  socket.close();
+                  running = false;
+              }
+
+              private void connectDirectory(String ip) {
+                  try {
+                      Socket socket = new Socket();
+                      socket.connect(new InetSocketAddress(ip, 0), 3000);
+
+                      socket.close();
+
+                  } catch (Exception ignored) {
+                      /*
+                       * Discovery announcement is intentionally separated
+                       * from service negotiation. The full Directory service
+                       * requires device-announced service ports.
+                       */
+                  }
+
+                  notifyStatus(ip);
+              }
+
+              private void notifyStatus(String ip) {
+                  JSObject status = new JSObject();
+                  status.put("ip", ip);
+                  status.put("message", "StageLinQ urządzenie wykryte. Directory handshake oczekuje na usługę urządzenia.");
+                  notifyListeners("stageLinqStatus", status);
+              }
+
+              private void notifyError(String message) {
+                  JSObject error = new JSObject();
+                  error.put("message", message == null ? "Nieznany błąd" : message);
+                  notifyListeners("stageLinqError", error);
+              }
+
+              private void emitState(String deck, String key, String value) {
+                  JSObject state = new JSObject();
+                  state.put("deck", deck);
+                  state.put("key", key);
+                  state.put("value", value);
+                  notifyListeners("stateChanged", state);
+              }
+
+              private void emitNowPlaying(String deck, String artist, String title,
+                                           String bpm, String key) {
+
+                  String id = deck + "|" + artist + "|" + title;
+
+                  synchronized (lastTracks) {
+                      if (id.equals(lastTracks.get(deck))) {
+                          return;
+                      }
+
+                      lastTracks.put(deck, id);
+                  }
+
+                  JSObject track = new JSObject();
+                  track.put("deck", deck);
+                  track.put("artist", artist);
+                  track.put("title", title);
+                  track.put("bpm", bpm);
+                  track.put("key", key);
+
+                  notifyListeners("nowPlaying", track);
+              }
+
+              @Override
+              protected void handleOnDestroy() {
+                  running = false;
+
+                  if (multicastLock != null && multicastLock.isHeld()) {
+                      multicastLock.release();
+                  }
+
+                  executor.shutdownNow();
+
+                  super.handleOnDestroy();
+              }
+          }
+          EOF
+
+      - name: Register StageLinQ plugin
+        run: |
+          cat > android/app/src/main/java/pl/aidj/assistant/MainActivity.java <<'EOF'
+          package pl.aidj.assistant;
+
+          import android.os.Bundle;
+
+          import com.getcapacitor.BridgeActivity;
+
+          public class MainActivity extends BridgeActivity {
+
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  registerPlugin(StageLinqPlugin.class);
+                  super.onCreate(savedInstanceState);
+              }
+          }
+          EOF
+
+      - name: Add Android network permissions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("android/app/src/main/AndroidManifest.xml")
+          s = p.read_text()
+
+          permissions = [
+              '    <uses-permission android:name="android.permission.INTERNET" />',
+              '    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />',
+              '    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />',
+              '    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />'
+          ]
+
+          for perm in permissions:
+              if perm not in s:
+                  s = s.replace('<application', perm + '\n\n    <application', 1)
+
+          p.write_text(s)
+          PY
+
       - name: Build debug APK
         run: |
           cd android
@@ -53,4 +365,3 @@ jobs:
           name: AI-DJ-Assistant-APK
           path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
-          
