@@ -11,105 +11,190 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Set up Java
+      - name: Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Install dependencies
+      - name: Install
         run: npm install
 
-      - name: Install Capacitor Android
+      - name: Capacitor Android
         run: npm install @capacitor/android
 
-      - name: Add Android platform if missing
+      - name: Add Android
         run: |
           if [ ! -d android ]; then
             npx cap add android
           fi
 
-      - name: Sync web assets
+      - name: Sync
         run: npx cap sync android
 
-      - name: Create StageLinQ native plugin
+      - name: Create StageLinq plugin
         run: |
           mkdir -p android/app/src/main/java/pl/aidj/assistant
 
           cat > android/app/src/main/java/pl/aidj/assistant/StageLinqPlugin.java <<'EOF'
           package pl.aidj.assistant;
 
-          import android.content.Context;
-          import android.net.ConnectivityManager;
           import android.net.wifi.WifiManager;
-
           import com.getcapacitor.JSObject;
           import com.getcapacitor.Plugin;
           import com.getcapacitor.PluginCall;
           import com.getcapacitor.annotation.CapacitorPlugin;
-
-          import java.io.ByteArrayInputStream;
-          import java.io.ByteArrayOutputStream;
-          import java.io.DataInputStream;
-          import java.io.DataOutputStream;
-          import java.io.IOException;
+          import com.getcapacitor.PluginMethod;
           import java.net.DatagramPacket;
           import java.net.DatagramSocket;
           import java.net.InetAddress;
-          import java.net.InetSocketAddress;
-          import java.net.ServerSocket;
-          import java.net.Socket;
-          import java.nio.ByteBuffer;
-          import java.nio.ByteOrder;
           import java.nio.charset.StandardCharsets;
-          import java.util.HashMap;
-          import java.util.Map;
-          import java.util.UUID;
-          import java.util.concurrent.ExecutorService;
-          import java.util.concurrent.Executors;
 
           @CapacitorPlugin(name = "StageLinq")
           public class StageLinqPlugin extends Plugin {
 
-              private static final int DISCOVERY_PORT = 51337;
+              private WifiManager.MulticastLock lock;
 
-              private final ExecutorService executor = Executors.newCachedThreadPool();
+              @PluginMethod
+              public void getNetworkStatus(PluginCall call) {
+                  JSObject result = new JSObject();
+                  result.put("stageLinqImplemented", true);
+                  result.put("message", "StageLinQ moduł Android aktywny.");
+                  call.resolve(result);
+              }
 
-              private DatagramSocket discoverySocket;
-              private ServerSocket directoryServer;
-              private WifiManager.MulticastLock multicastLock;
+              @PluginMethod
+              public void acquireMulticastLock(PluginCall call) {
+                  try {
+                      WifiManager wifi =
+                          (WifiManager) getContext()
+                          .getApplicationContext()
+                          .getSystemService(android.content.Context.WIFI_SERVICE);
 
-              private byte[] deviceId;
+                      if (wifi == null) {
+                          call.reject("Brak Wi-Fi.");
+                          return;
+                      }
 
-              private final Map<Integer, DeviceInfo> devices = new HashMap<>();
+                      if (lock == null) {
+                          lock = wifi.createMulticastLock("AI-DJ-StageLinq");
+                          lock.setReferenceCounted(false);
+                      }
 
-              private static class DeviceInfo {
-                  String ip;
-                  int directoryPort;
-                  String name;
-                  String software;
-                  String version;
-                  byte[] id;
+                      if (!lock.isHeld()) {
+                          lock.acquire();
+                      }
+
+                      JSObject result = new JSObject();
+                      result.put("active", true);
+                      call.resolve(result);
+
+                  } catch (Exception e) {
+                      call.reject(e.getMessage());
+                  }
+              }
+
+              @PluginMethod
+              public void discover(PluginCall call) {
+                  new Thread(() -> {
+                      try {
+                          byte[] data = "airD".getBytes(StandardCharsets.US_ASCII);
+
+                          DatagramSocket socket = new DatagramSocket();
+                          socket.setBroadcast(true);
+
+                          DatagramPacket packet =
+                              new DatagramPacket(
+                                  data,
+                                  data.length,
+                                  InetAddress.getByName("255.255.255.255"),
+                                  51337
+                              );
+
+                          socket.send(packet);
+                          socket.close();
+
+                          JSObject result = new JSObject();
+                          result.put("started", true);
+                          call.resolve(result);
+
+                      } catch (Exception e) {
+                          call.reject(e.getMessage());
+                      }
+                  }).start();
               }
 
               @Override
-              public void load() {
-                  super.load();
-                  deviceId = loadDeviceId();
+              protected void handleOnDestroy() {
+                  if (lock != null && lock.isHeld()) {
+                      lock.release();
+                  }
+                  super.handleOnDestroy();
               }
+          }
+          EOF
 
-              private byte[] loadDeviceId() {
-                  android.content.SharedPreferences prefs =
-                          getContext().getSharedPreferences("stagelinq", Context.MODE_PRIVATE);
+      - name: Register plugin
+        run: |
+          cat > android/app/src/main/java/pl/aidj/assistant/MainActivity.java <<'EOF'
+          package pl.aidj.assistant;
 
-                  String stored = prefs.getString("deviceId", null);
+          import android.os.Bundle;
+          import com.getcapacitor.BridgeActivity;
 
-                  if (stored
+          public class MainActivity extends BridgeActivity {
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  registerPlugin(StageLinqPlugin.class);
+                  super.onCreate(savedInstanceState);
+              }
+          }
+          EOF
+
+      - name: Android permissions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path("android/app/src/main/AndroidManifest.xml")
+          s = p.read_text()
+
+          permissions = [
+              "android.permission.INTERNET",
+              "android.permission.ACCESS_NETWORK_STATE",
+              "android.permission.ACCESS_WIFI_STATE",
+              "android.permission.CHANGE_WIFI_MULTICAST_STATE"
+          ]
+
+          for permission in permissions:
+              line = f'    <uses-permission android:name="{permission}" />'
+              if line not in s:
+                  s = s.replace(
+                      "<application",
+                      line + "\n\n    <application",
+                      1
+                  )
+
+          p.write_text(s)
+          PY
+
+      - name: Build APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AI-DJ-Assistant-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
