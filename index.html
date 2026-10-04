@@ -6,412 +6,2097 @@
 <meta name="theme-color" content="#0b0b10">
 <link rel="manifest" href="manifest.json">
 <title>AI DJ Assistant</title>
+
 <style>
-:root{--bg:#0b0b10;--card:#161620;--card2:#1e1e2b;--line:#2a2a3a;--tx:#f2f2f7;--mut:#8b8ba0;--cy:#00e5ff;--pk:#ff2d78;--gr:#39ff88;--yl:#ffd23f;--rd:#ff4d4d}
+:root{
+ --bg:#0b0b10;
+ --card:#161620;
+ --card2:#1e1e2b;
+ --line:#2a2a3a;
+ --tx:#f2f2f7;
+ --mut:#8b8ba0;
+ --cy:#00e5ff;
+ --pk:#ff2d78;
+ --gr:#39ff88;
+ --yl:#ffd23f;
+ --rd:#ff4d4d
+}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,Roboto,sans-serif;overscroll-behavior:none}
-body{padding:env(safe-area-inset-top) 0 calc(72px + env(safe-area-inset-bottom)) 0}
+html,body{
+ margin:0;
+ background:var(--bg);
+ color:var(--tx);
+ font-family:system-ui,-apple-system,Roboto,sans-serif;
+ overscroll-behavior:none
+}
+body{
+ padding:env(safe-area-inset-top) 0 calc(72px + env(safe-area-inset-bottom)) 0
+}
 main{padding:10px 12px;max-width:760px;margin:0 auto}
-h2{font-size:13px;letter-spacing:.14em;color:var(--mut);margin:16px 2px 8px;text-transform:uppercase}
-button{font:inherit;color:var(--tx);background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 10px;min-height:46px;font-weight:700;letter-spacing:.02em}
+h2{
+ font-size:13px;
+ letter-spacing:.14em;
+ color:var(--mut);
+ margin:16px 2px 8px;
+ text-transform:uppercase
+}
+button{
+ font:inherit;
+ color:var(--tx);
+ background:var(--card2);
+ border:1px solid var(--line);
+ border-radius:12px;
+ padding:12px 10px;
+ min-height:46px;
+ font-weight:700;
+ letter-spacing:.02em
+}
 button:active{transform:scale(.97)}
 button.on{background:var(--cy);color:#001318;border-color:var(--cy)}
-button.pk{background:var(--pk);border-color:var(--pk)}button.gr{background:var(--gr);color:#00210f;border-color:var(--gr)}
-button.rd{background:#3a1216;border-color:var(--rd);color:#ffb3b3}button.em{background:var(--rd);border-color:var(--rd);color:#fff}
+button.pk{background:var(--pk);border-color:var(--pk)}
+button.gr{background:var(--gr);color:#00210f;border-color:var(--gr)}
+button.rd{background:#3a1216;border-color:var(--rd);color:#ffb3b3}
+button.em{background:var(--rd);border-color:var(--rd);color:#fff}
 button.sm{min-height:38px;padding:8px 10px;font-size:13px}
-input,select,textarea{font:inherit;color:var(--tx);background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px;width:100%;min-height:46px}
-label{display:block;font-size:12px;color:var(--mut);margin:10px 0 4px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px}
-.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1 1 auto}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.big{display:flex;gap:10px;margin-top:10px}.big div{flex:1;background:var(--card2);border-radius:12px;padding:8px 6px;text-align:center}
-.big b{display:block;font-size:34px;line-height:1.05;font-variant-numeric:tabular-nums}.big small{color:var(--mut);font-size:11px;letter-spacing:.12em}
-.cur .name{font-size:19px;font-weight:800}.mut{color:var(--mut);font-size:13px}
-.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{padding:6px 10px;border-radius:99px;background:var(--card2);border:1px solid var(--line);font-size:12px;font-weight:700}
-.chip.act{background:#06343b;border-color:var(--cy);color:var(--cy)}
-.rec{border-left:4px solid var(--cy)}.rec.sel{border-left-color:var(--gr);background:#10201a}
-.rec .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
-.rank{font-size:26px;font-weight:900;color:var(--cy);min-width:28px}
-.score{font-size:24px;font-weight:900;color:var(--gr);text-align:right}
-.meta{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.meta span{background:var(--card2);border-radius:8px;padding:4px 8px;font-size:13px;font-weight:700}
-.up{color:var(--gr)}.dn{color:var(--yl)}
-.reason{font-size:14px;color:#d6d6e4;margin:6px 0 10px;line-height:1.35}
-.badge{font-size:10px;font-weight:800;padding:2px 6px;border-radius:6px;background:#2b2b40;color:var(--mut)}.badge.ai{background:var(--pk);color:#fff}
-nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:#0e0e15;border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:5}
-nav button{flex:1;border:0;background:none;border-radius:10px;font-size:11px;padding:8px 2px;color:var(--mut);min-height:52px}
-nav button.on{background:none;color:var(--cy)}nav button i{display:block;font-style:normal;font-size:20px}
-.warn{background:#3a2d0a;border:1px solid var(--yl);color:#ffe9a3;border-radius:12px;padding:8px 12px;font-size:13px;margin-bottom:10px}
-.sheet{position:fixed;inset:0;background:#000c;z-index:20;display:flex;align-items:flex-end}
-.sheet>div{background:var(--card);border-radius:20px 20px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom));width:100%;max-height:88vh;overflow:auto}
-.msg{padding:10px 12px;border-radius:14px;margin:8px 0;max-width:92%;line-height:1.35;font-size:15px}
-.msg.me{background:#06343b;margin-left:auto}.msg.ai{background:var(--card2)}
-.item{padding:10px 4px;border-bottom:1px solid var(--line);display:flex;gap:8px;justify-content:space-between;align-items:center}
-svg.chart{width:100%;height:90px;background:var(--card2);border-radius:12px}
+input,select,textarea{
+ font:inherit;
+ color:var(--tx);
+ background:var(--card2);
+ border:1px solid var(--line);
+ border-radius:12px;
+ padding:12px;
+ width:100%;
+ min-height:46px
+}
+label{
+ display:block;
+ font-size:12px;
+ color:var(--mut);
+ margin:10px 0 4px
+}
+.card{
+ background:var(--card);
+ border:1px solid var(--line);
+ border-radius:16px;
+ padding:14px;
+ margin-bottom:10px
+}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>*{flex:1 1 auto}
+.grid3{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:8px
+}
+.grid2{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:8px
+}
+.big{display:flex;gap:10px;margin-top:10px}
+.big div{
+ flex:1;
+ background:var(--card2);
+ border-radius:12px;
+ padding:8px 6px;
+ text-align:center
+}
+.big b{
+ display:block;
+ font-size:34px;
+ line-height:1.05;
+ font-variant-numeric:tabular-nums
+}
+.big small{
+ color:var(--mut);
+ font-size:11px;
+ letter-spacing:.12em
+}
+.cur .name{font-size:19px;font-weight:800}
+.mut{color:var(--mut);font-size:13px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{
+ padding:6px 10px;
+ border-radius:99px;
+ background:var(--card2);
+ border:1px solid var(--line);
+ font-size:12px;
+ font-weight:700
+}
+.chip.act{
+ background:#06343b;
+ border-color:var(--cy);
+ color:var(--cy)
+}
+.rec{border-left:4px solid var(--cy)}
+.rec.sel{
+ border-left-color:var(--gr);
+ background:#10201a
+}
+.rec .top{
+ display:flex;
+ justify-content:space-between;
+ gap:8px;
+ align-items:flex-start
+}
+.rank{
+ font-size:26px;
+ font-weight:900;
+ color:var(--cy);
+ min-width:28px
+}
+.score{
+ font-size:24px;
+ font-weight:900;
+ color:var(--gr);
+ text-align:right
+}
+.meta{
+ display:flex;
+ gap:6px;
+ flex-wrap:wrap;
+ margin:8px 0
+}
+.meta span{
+ background:var(--card2);
+ border-radius:8px;
+ padding:4px 8px;
+ font-size:13px;
+ font-weight:700
+}
+.up{color:var(--gr)}
+.dn{color:var(--yl)}
+.reason{
+ font-size:14px;
+ color:#d6d6e4;
+ margin:6px 0 10px;
+ line-height:1.35
+}
+.badge{
+ font-size:10px;
+ font-weight:800;
+ padding:2px 6px;
+ border-radius:6px;
+ background:#2b2b40;
+ color:var(--mut)
+}
+.badge.ai{
+ background:var(--pk);
+ color:#fff
+}
+nav{
+ position:fixed;
+ left:0;
+ right:0;
+ bottom:0;
+ display:flex;
+ background:#0e0e15;
+ border-top:1px solid var(--line);
+ padding:6px 6px calc(6px + env(safe-area-inset-bottom));
+ z-index:5
+}
+nav button{
+ flex:1;
+ border:0;
+ background:none;
+ border-radius:10px;
+ font-size:11px;
+ padding:8px 2px;
+ color:var(--mut);
+ min-height:52px
+}
+nav button.on{
+ background:none;
+ color:var(--cy)
+}
+nav button i{
+ display:block;
+ font-style:normal;
+ font-size:20px
+}
+.warn{
+ background:#3a2d0a;
+ border:1px solid var(--yl);
+ color:#ffe9a3;
+ border-radius:12px;
+ padding:8px 12px;
+ font-size:13px;
+ margin-bottom:10px
+}
+.sheet{
+ position:fixed;
+ inset:0;
+ background:#000c;
+ z-index:20;
+ display:flex;
+ align-items:flex-end
+}
+.sheet>div{
+ background:var(--card);
+ border-radius:20px 20px 0 0;
+ padding:16px 14px calc(16px + env(safe-area-inset-bottom));
+ width:100%;
+ max-height:88vh;
+ overflow:auto
+}
+.msg{
+ padding:10px 12px;
+ border-radius:14px;
+ margin:8px 0;
+ max-width:92%;
+ line-height:1.35;
+ font-size:15px
+}
+.msg.me{
+ background:#06343b;
+ margin-left:auto
+}
+.msg.ai{background:var(--card2)}
+.item{
+ padding:10px 4px;
+ border-bottom:1px solid var(--line);
+ display:flex;
+ gap:8px;
+ justify-content:space-between;
+ align-items:center
+}
+svg.chart{
+ width:100%;
+ height:90px;
+ background:var(--card2);
+ border-radius:12px
+}
 .hide{display:none}
+
+/* STAGELINQ */
+.stagelinq-card{
+ border:1px solid #24404a;
+ background:linear-gradient(135deg,#111820,#15151f)
+}
+.stagelinq-status{
+ margin-top:10px;
+ padding:10px;
+ border-radius:10px;
+ background:#101017;
+ border:1px solid var(--line);
+ font-size:13px
+}
+.stagelinq-online{
+ color:var(--gr)
+}
+.stagelinq-offline{
+ color:var(--yl)
+}
+.nowplaying{
+ margin-top:10px;
+ padding:12px;
+ border-radius:12px;
+ background:#071b20;
+ border:1px solid #16444d
+}
+.nowplaying .np-title{
+ font-size:18px;
+ font-weight:800
+}
+.nowplaying .np-meta{
+ color:var(--mut);
+ margin-top:5px;
+ font-size:13px
+}
 </style>
 </head>
+
 <body>
+
 <main id="view"></main>
+
 <nav id="nav"></nav>
+
 <div id="sheet"></div>
+
 <script src="engine.js"></script>
 <script src="demo.js"></script>
+
 <script>
 "use strict";
+
 const E = window.Engine;
+
 const KEY = "aidj_state_v2";
-const MODES = ["WARM UP", "BUILDING", "MAIN", "PEAK TIME", "AFTER PEAK", "CLOSING", "CUSTOM"];
-const AGES = ["18–24", "25–34", "35–44", "45+"];
-const MUSIC = ["Commercial","Club","House","Tech House","EDM","Hip-Hop","Pop","Dance","2000s","2010s","2020s","Polish Hits","Polish Pop","Polish Dance","Polish Club","Polish Classics","International Hits","Mixed"];
-const SIZES = ["Small", "Medium", "Large", "Very Large"];
-const EVENTS = ["Club","Wedding","Festival","Private Party","Corporate","Beach Party","Student Party","Other"];
-const REASONS = ["Too Slow","Too Fast","Wrong Genre","Too Commercial","Not Commercial Enough","Too Low Energy","Too High Energy","Bad Transition","Already Played","Don't Like Artist"];
-const WLABEL = {music_compatibility:"Zgodność muzyczna",energy_flow:"Przepływ energii",bpm:"BPM",harmonic:"Harmonia",danceability:"Danceability",popularity:"Popularność",crowd:"Profil publiczności",set_history:"Historia seta"};
+
+const MODES = [
+ "WARM UP",
+ "BUILDING",
+ "MAIN",
+ "PEAK TIME",
+ "AFTER PEAK",
+ "CLOSING",
+ "CUSTOM"
+];
+
+const AGES = [
+ "18–24",
+ "25–34",
+ "35–44",
+ "45+"
+];
+
+const MUSIC = [
+ "Commercial",
+ "Club",
+ "House",
+ "Tech House",
+ "EDM",
+ "Hip-Hop",
+ "Pop",
+ "Dance",
+ "2000s",
+ "2010s",
+ "2020s",
+ "Polish Hits",
+ "Polish Pop",
+ "Polish Dance",
+ "Polish Club",
+ "Polish Classics",
+ "International Hits",
+ "Mixed"
+];
+
+const SIZES = [
+ "Small",
+ "Medium",
+ "Large",
+ "Very Large"
+];
+
+const EVENTS = [
+ "Club",
+ "Wedding",
+ "Festival",
+ "Private Party",
+ "Corporate",
+ "Beach Party",
+ "Student Party",
+ "Other"
+];
+
+const REASONS = [
+ "Too Slow",
+ "Too Fast",
+ "Wrong Genre",
+ "Too Commercial",
+ "Not Commercial Enough",
+ "Too Low Energy",
+ "Too High Energy",
+ "Bad Transition",
+ "Already Played",
+ "Don't Like Artist"
+];
+
+const WLABEL = {
+ music_compatibility:"Zgodność muzyczna",
+ energy_flow:"Przepływ energii",
+ bpm:"BPM",
+ harmonic:"Harmonia",
+ danceability:"Danceability",
+ popularity:"Popularność",
+ crowd:"Profil publiczności",
+ set_history:"Historia seta"
+};
 
 const DEF = () => ({
-  lib: [], nextId: 1, current: null, history: [], played: [], rejected: [], favs: [], blacklist: [], selected: null,
-  mode: "MAIN", mods: null, sets: [], feedback: [], chat: [], setStart: Date.now(), recLog: {accepted: 0, rejected: 0, shown: 0},
-  crowd: {age_groups: ["25–34"], music_preferences: ["Commercial", "Club"], crowd_size: "Medium", crowd_energy: 70, event_type: "Club"},
-  weights: Object.assign({}, E.DEFAULT_WEIGHTS), profile: {g: {}, a: {}, bpm: []},
-  cfg: {apiKey: "", model: "gpt-4o-mini", useAI: true, hourOverride: ""}
+ lib: [],
+ nextId: 1,
+ current: null,
+ history: [],
+ played: [],
+ rejected: [],
+ favs: [],
+ blacklist: [],
+ selected: null,
+
+ mode: "MAIN",
+ mods: null,
+ sets: [],
+ feedback: [],
+ chat: [],
+ setStart: Date.now(),
+
+ recLog:{
+   accepted:0,
+   rejected:0,
+   shown:0
+ },
+
+ crowd:{
+   age_groups:["25–34"],
+   music_preferences:["Commercial","Club"],
+   crowd_size:"Medium",
+   crowd_energy:70,
+   event_type:"Club"
+ },
+
+ weights:Object.assign({},E.DEFAULT_WEIGHTS),
+
+ profile:{
+   g:{},
+   a:{},
+   bpm:[]
+ },
+
+ cfg:{
+   apiKey:"",
+   model:"gpt-4o-mini",
+   useAI:true,
+   hourOverride:""
+ },
+
+ /* StageLinQ */
+ stageLinq:{
+   connected:false,
+   device:null,
+   nowPlaying:null,
+   listenersReady:false
+ }
 });
+
 let S = load();
-function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s) return Object.assign(DEF(), s, {cfg: Object.assign(DEF().cfg, s.cfg || {})}); } catch (e) {} return DEF(); }
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast("Brak miejsca na zapis danych!"); } }
-S.mods = S.mods || E.parseCommand("");
-let tab = "play", view5 = false, recs = [], recLvl = 0, aiState = "", reqId = 0, aiCache = new Map(), next5 = [];
 
-const $ = s => document.querySelector(s);
-const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
-const num = (v, d) => { const x = parseFloat(String(v).replace(",", ".")); return isNaN(x) ? d : x; };
-function toast(m) { const d = document.createElement("div"); d.textContent = m; d.style.cssText = "position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#fff;color:#000;padding:10px 16px;border-radius:99px;z-index:50;font-weight:700;font-size:14px"; document.body.appendChild(d); setTimeout(() => d.remove(), 1800); }
-function hourNow() { const o = S.cfg.hourOverride; if (o && /^\d{1,2}:\d{2}$/.test(o)) { const [h, m] = o.split(":"); return +h + +m / 60; } const d = new Date(); return d.getHours() + d.getMinutes() / 60; }
-const hhmm = h => String(Math.floor(h)).padStart(2, "0") + ":" + String(Math.round((h % 1) * 60)).padStart(2, "0");
+function load(){
+ try{
+   const s=JSON.parse(localStorage.getItem(KEY));
 
-/* ------------------------------------------------ profil DJ-a (uczenie się stylu) */
-function bump(map, k, v) { if (!k) return; k = k.toLowerCase(); map[k] = Math.max(-12, Math.min(12, (map[k] || 0) + v)); }
-function learn(t, w) { const g = (t.genre || "").toLowerCase().split(/\s+/)[0]; bump(S.profile.g, g, w); bump(S.profile.a, t.artist, w * 1.2); if (w > 0 && t.bpm) { S.profile.bpm.push(t.bpm); S.profile.bpm = S.profile.bpm.slice(-30); } }
-function djProfile() { const n = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, Math.tanh(v / 5)]));
-  const b = S.profile.bpm; return {genre_affinity: n(S.profile.g), artist_affinity: n(S.profile.a), bpm_center: b.length >= 5 ? b.reduce((x, y) => x + y, 0) / b.length : null}; }
+   if(s){
+     const d=DEF();
 
-/* ------------------------------------------------ kontekst i rekomendacje */
-function ctx() {
-  return {mode: S.mode, hour: hourNow(), mods: S.mods, weights: S.weights, crowd: S.crowd, dj_profile: djProfile(), history: S.history,
-    recent_energies: S.history.map(h => h.energy).filter(e => e != null).slice(-4), played_ids: [...S.played, ...S.rejected],
-    blacklist: new Set(S.blacklist.map(a => a.toLowerCase()))};
+     return Object.assign(
+       d,
+       s,
+       {
+         cfg:Object.assign(d.cfg,s.cfg||{}),
+         stageLinq:Object.assign(
+           d.stageLinq,
+           s.stageLinq||{}
+         )
+       }
+     );
+   }
+
+ }catch(e){}
+
+ return DEF();
 }
-function summary(c) { const cur = S.current || {};
-  return JSON.stringify({teraz: cur.artist ? `${cur.artist} - ${cur.title}, ${cur.bpm} BPM, ${cur.key}, energy ${cur.energy}, ${cur.genre}` : null, tryb: S.mode, godzina: hhmm(c.hour),
-    cel_energii: Math.round(E.energyTarget(S.mode, c.hour, c.recent_energies, S.crowd.crowd_energy, S.mods.energy_delta || 0, cur.energy)), publicznosc: S.crowd,
-    aktywne_polecenia: S.mods, ostatnie: S.history.slice(-5).map(h => `${h.artist} - ${h.title} (${h.bpm}/${h.energy})`), profil_dj: djProfile()}); }
 
-function refresh() {
-  if (!S.current) { recs = []; render(); return; }
-  const c = ctx(); const [top, lvl, all] = E.recommend(S.lib, S.current, c, 5); recs = top.map((t, i) => Object.assign(t, {_rank: i + 1, _src: "LOKALNIE"})); recLvl = lvl;
-  S.recLog.shown += recs.length; aiState = ""; next5 = view5 ? E.planNext5(S.lib, S.current, c, 5) : next5; render(); save();
-  if (S.cfg.useAI && S.cfg.apiKey && all.length) aiRank(all.slice(0, 15), c);
+function save(){
+ try{
+   localStorage.setItem(KEY,JSON.stringify(S));
+ }catch(e){
+   toast("Brak miejsca na zapis danych!");
+ }
 }
-async function openai(messages) {
-  const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 20000);
-  const body = {model: S.cfg.model, response_format: {type: "json_object"}, messages};
-  const call = async b => fetch("https://api.openai.com/v1/chat/completions", {method: "POST", signal: ctl.signal, headers: {"Content-Type": "application/json", Authorization: "Bearer " + S.cfg.apiKey}, body: JSON.stringify(b)});
-  try {
-    let r = await call(Object.assign({temperature: 0.3}, body));
-    if (!r.ok) { const t = await r.text(); if (/temperature/i.test(t)) r = await call(body); else throw new Error(r.status === 401 ? "Klucz OpenAI jest nieprawidłowy" : r.status === 429 ? "Limit / brak środków na koncie OpenAI" : "Błąd OpenAI " + r.status); }
-    if (!r.ok) throw new Error("Błąd OpenAI " + r.status);
-    return JSON.parse((await r.json()).choices[0].message.content);
-  } catch (e) { throw new Error(e.name === "AbortError" ? "AI nie odpowiedziało w 20 s" : (e.message || "Brak internetu")); } finally { clearTimeout(to); }
+
+S.mods=S.mods||E.parseCommand("");
+
+let tab="play";
+let view5=false;
+let recs=[];
+let recLvl=0;
+let aiState="";
+let reqId=0;
+let aiCache=new Map();
+let next5=[];
+
+const $=s=>document.querySelector(s);
+
+const esc=s=>String(
+ s==null?"":s
+).replace(
+ /[&<>"']/g,
+ c=>({
+   "&":"&amp;",
+   "<":"&lt;",
+   ">":"&gt;",
+   '"':"&quot;",
+   "'":"&#39;"
+ }[c])
+);
+
+const num=(v,d)=>{
+ const x=parseFloat(
+   String(v).replace(",",".")
+ );
+ return isNaN(x)?d:x;
+};
+
+function toast(m){
+ const d=document.createElement("div");
+
+ d.textContent=m;
+
+ d.style.cssText=
+ "position:fixed;left:50%;bottom:90px;" +
+ "transform:translateX(-50%);" +
+ "background:#fff;color:#000;" +
+ "padding:10px 16px;" +
+ "border-radius:99px;" +
+ "z-index:50;font-weight:700;font-size:14px";
+
+ document.body.appendChild(d);
+
+ setTimeout(()=>d.remove(),1800);
 }
-const compact = t => ({id: t.id, artist: t.artist, title: t.title, bpm: t.bpm, key_camelot: E.normalizeKey(t.key) || t.key, energy: t.energy, genre: t.genre, year: t.year, popularity: t.popularity, danceability: t.danceability, local_score: t._score});
-const SYS = "Jesteś AI DJ ASSISTANT - ekspert od prowadzenia setów klubowych, ze świetną znajomością polskiej i międzynarodowej sceny dance/club. Wybierz i uargumentuj najlepsze NEXT TRACKI. DJ DECYDUJE, ty REKOMENDUJESZ. Wybieraj WYŁĄCZNIE spośród podanych kandydatów (po id). Odpowiadasz WYŁĄCZNIE poprawnym JSON.";
-async function aiRank(cands, c) {
-  const my = ++reqId, sum = summary(c), ck = sum + cands.map(t => t.id).join(",");
-  let out = aiCache.get(ck);
-  if (!out) {
-    aiState = "AI analizuje…"; render();
-    try {
-      out = await openai([{role: "system", content: SYS}, {role: "user", content: JSON.stringify({context: sum, kandydaci_posortowani_wg_lokalnego_score: cands.map(compact), zadanie: "Wybierz TOP 5 i zwróć JSON: {\"recommendations\":[{\"track_id\":<id z listy>,\"reason\":\"1-2 zdania po polsku\"}],\"mode_suggestion\":\"WARM UP|BUILDING|MAIN|PEAK TIME|AFTER PEAK|CLOSING|null\"}"})}]);
-      aiCache.set(ck, out);
-    } catch (e) { if (my === reqId) { aiState = "AI niedostępne: " + e.message + " (ranking lokalny)"; render(); } return; }
+
+function hourNow(){
+
+ const o=S.cfg.hourOverride;
+
+ if(
+   o &&
+   /^\d{1,2}:\d{2}$/.test(o)
+ ){
+   const [h,m]=o.split(":");
+
+   return +h + +m/60;
+ }
+
+ const d=new Date();
+
+ return d.getHours()+
+        d.getMinutes()/60;
+}
+
+const hhmm=h=>
+ String(Math.floor(h)).padStart(2,"0")+
+ ":"+
+ String(Math.round((h%1)*60)).padStart(2,"0");
+
+
+/* =========================================================
+   PROFIL DJ-A
+========================================================= */
+
+function bump(map,k,v){
+
+ if(!k)return;
+
+ k=k.toLowerCase();
+
+ map[k]=Math.max(
+   -12,
+   Math.min(
+     12,
+     (map[k]||0)+v
+   )
+ );
+}
+
+function learn(t,w){
+
+ const g=(t.genre||"")
+   .toLowerCase()
+   .split(/\s+/)[0];
+
+ bump(
+   S.profile.g,
+   g,
+   w
+ );
+
+ bump(
+   S.profile.a,
+   t.artist,
+   w*1.2
+ );
+
+ if(w>0 && t.bpm){
+
+   S.profile.bpm.push(t.bpm);
+
+   S.profile.bpm=
+     S.profile.bpm.slice(-30);
+ }
+}
+
+function djProfile(){
+
+ const n=o=>
+   Object.fromEntries(
+     Object.entries(o).map(
+       ([k,v])=>[
+         k,
+         Math.tanh(v/5)
+       ]
+     )
+   );
+
+ const b=S.profile.bpm;
+
+ return {
+   genre_affinity:n(S.profile.g),
+   artist_affinity:n(S.profile.a),
+   bpm_center:
+     b.length>=5
+       ?b.reduce((x,y)=>x+y,0)/b.length
+       :null
+ };
+}
+
+
+/* =========================================================
+   KONTEKST
+========================================================= */
+
+function ctx(){
+
+ return {
+   mode:S.mode,
+   hour:hourNow(),
+   mods:S.mods,
+   weights:S.weights,
+   crowd:S.crowd,
+   dj_profile:djProfile(),
+   history:S.history,
+
+   recent_energies:
+     S.history
+       .map(h=>h.energy)
+       .filter(e=>e!=null)
+       .slice(-4),
+
+   played_ids:[
+     ...S.played,
+     ...S.rejected
+   ],
+
+   blacklist:
+     new Set(
+       S.blacklist.map(
+         a=>a.toLowerCase()
+       )
+     )
+ };
+}
+
+function summary(c){
+
+ const cur=S.current||{};
+
+ return JSON.stringify({
+
+   teraz:
+     cur.artist
+       ?`${cur.artist} - ${cur.title}, `+
+        `${cur.bpm} BPM, ${cur.key}, `+
+        `energy ${cur.energy}, ${cur.genre}`
+       :null,
+
+   tryb:S.mode,
+
+   godzina:hhmm(c.hour),
+
+   cel_energii:
+     Math.round(
+       E.energyTarget(
+         S.mode,
+         c.hour,
+         c.recent_energies,
+         S.crowd.crowd_energy,
+         S.mods.energy_delta||0,
+         cur.energy
+       )
+     ),
+
+   publicznosc:S.crowd,
+
+   aktywne_polecenia:S.mods,
+
+   ostatnie:
+     S.history.slice(-5).map(
+       h=>`${h.artist} - ${h.title} `+
+          `(${h.bpm}/${h.energy})`
+     ),
+
+   profil_dj:djProfile()
+ });
+}
+
+
+/* =========================================================
+   REKOMENDACJE
+========================================================= */
+
+function refresh(){
+
+ if(!S.current){
+   recs=[];
+   render();
+   return;
+ }
+
+ const c=ctx();
+
+ const [
+   top,
+   lvl,
+   all
+ ]=E.recommend(
+   S.lib,
+   S.current,
+   c,
+   5
+ );
+
+ recs=top.map(
+   (t,i)=>
+     Object.assign(
+       t,
+       {
+         _rank:i+1,
+         _src:"LOKALNIE"
+       }
+     )
+ );
+
+ recLvl=lvl;
+
+ S.recLog.shown+=recs.length;
+
+ aiState="";
+
+ next5=
+   view5
+     ?E.planNext5(
+        S.lib,
+        S.current,
+        c,
+        5
+      )
+     :next5;
+
+ render();
+
+ save();
+
+ if(
+   S.cfg.useAI &&
+   S.cfg.apiKey &&
+   all.length
+ ){
+   aiRank(
+     all.slice(0,15),
+     c
+   );
+ }
+}
+
+
+/* =========================================================
+   OPENAI
+========================================================= */
+
+async function openai(messages){
+
+ const ctl=new AbortController();
+
+ const to=setTimeout(
+   ()=>ctl.abort(),
+   20000
+ );
+
+ const body={
+   model:S.cfg.model,
+   response_format:{
+     type:"json_object"
+   },
+   messages
+ };
+
+ const call=async b=>
+   fetch(
+     "https://api.openai.com/v1/chat/completions",
+     {
+       method:"POST",
+       signal:ctl.signal,
+       headers:{
+         "Content-Type":"application/json",
+         Authorization:
+           "Bearer "+S.cfg.apiKey
+       },
+       body:JSON.stringify(b)
+     }
+   );
+
+ try{
+
+   let r=await call(
+     Object.assign(
+       {temperature:0.3},
+       body
+     )
+   );
+
+   if(!r.ok){
+
+     const t=await r.text();
+
+     if(/temperature/i.test(t)){
+
+       r=await call(body);
+
+     }else{
+
+       throw new Error(
+         r.status===401
+           ?"Klucz OpenAI jest nieprawidłowy"
+           :r.status===429
+             ?"Limit / brak środków na koncie OpenAI"
+             :"Błąd OpenAI "+r.status
+       );
+     }
+   }
+
+   if(!r.ok)
+     throw new Error(
+       "Błąd OpenAI "+r.status
+     );
+
+   return JSON.parse(
+     (await r.json())
+       .choices[0]
+       .message
+       .content
+   );
+
+ }catch(e){
+
+   throw new Error(
+     e.name==="AbortError"
+       ?"AI nie odpowiedziało w 20 s"
+       :(e.message||"Brak internetu")
+   );
+
+ }finally{
+
+   clearTimeout(to);
+ }
+}
+
+const compact=t=>({
+
+ id:t.id,
+ artist:t.artist,
+ title:t.title,
+ bpm:t.bpm,
+ key_camelot:
+   E.normalizeKey(t.key)||t.key,
+ energy:t.energy,
+ genre:t.genre,
+ year:t.year,
+ popularity:t.popularity,
+ danceability:t.danceability,
+ local_score:t._score
+
+});
+
+const SYS=
+ "Jesteś AI DJ ASSISTANT - ekspert od prowadzenia setów klubowych, "+
+ "ze świetną znajomością polskiej i międzynarodowej sceny dance/club. "+
+ "Wybierz i uargumentuj najlepsze NEXT TRACKI. "+
+ "DJ DECYDUJE, ty REKOMENDUJESZ. "+
+ "Wybieraj WYŁĄCZNIE spośród podanych kandydatów (po id). "+
+ "Odpowiadasz WYŁĄCZNIE poprawnym JSON.";
+
+async function aiRank(cands,c){
+
+ const my=++reqId;
+
+ const sum=summary(c);
+
+ const ck=
+   sum+
+   cands.map(t=>t.id).join(",");
+
+ let out=aiCache.get(ck);
+
+ if(!out){
+
+   aiState="AI analizuje…";
+
+   render();
+
+   try{
+
+     out=await openai([
+
+       {
+         role:"system",
+         content:SYS
+       },
+
+       {
+         role:"user",
+         content:JSON.stringify({
+
+           context:sum,
+
+           kandydaci_posortowani_wg_lokalnego_score:
+             cands.map(compact),
+
+           zadanie:
+             "Wybierz TOP 5 i zwróć JSON: "+
+             "{\"recommendations\":["+
+             "{\"track_id\":<id z listy>,"+
+             "\"reason\":\"1-2 zdania po polsku\"}"+
+             "],"+
+             "\"mode_suggestion\":"+
+             "\"WARM UP|BUILDING|MAIN|PEAK TIME|AFTER PEAK|CLOSING|null\"}"
+
+         })
+       }
+
+     ]);
+
+     aiCache.set(ck,out);
+
+   }catch(e){
+
+     if(my===reqId){
+
+       aiState=
+         "AI niedostępne: "+
+         e.message+
+         " (ranking lokalny)";
+
+       render();
+     }
+
+     return;
+   }
+ }
+
+ if(my!==reqId)return;
+
+ const byId=
+   new Map(
+     cands.map(
+       t=>[String(t.id),t]
+     )
+   );
+
+ const seen=new Set();
+ const pick=[];
+
+ for(
+   const r of out.recommendations||[]
+ ){
+
+   const t=
+     byId.get(
+       String(r.track_id)
+     );
+
+   if(
+     t &&
+     !seen.has(t.id)
+   ){
+
+     seen.add(t.id);
+
+     pick.push(
+       Object.assign(
+         {},
+         t,
+         {
+           _reason:
+             String(
+               r.reason||
+               t._reason
+             ),
+
+           _src:"AI"
+         }
+       )
+     );
+   }
+ }
+
+ if(!pick.length){
+
+   aiState=
+     "AI zwróciło nieprawidłowe utwory (ranking lokalny)";
+
+   render();
+
+   return;
+ }
+
+ for(const t of recs){
+
+   if(
+     pick.length<5 &&
+     !seen.has(t.id)
+   ){
+
+     pick.push(t);
+   }
+ }
+
+ recs=
+   pick
+     .slice(0,5)
+     .map(
+       (t,i)=>
+         Object.assign(
+           t,
+           {_rank:i+1}
+         )
+     );
+
+ aiState="";
+
+ if(
+   out.mode_suggestion &&
+   out.mode_suggestion!=="null" &&
+   MODES.includes(
+     out.mode_suggestion
+   ) &&
+   out.mode_suggestion!==S.mode
+ ){
+
+   aiState=
+     "AI sugeruje tryb: "+
+     out.mode_suggestion;
+ }
+
+ render();
+}
+
+
+/* =========================================================
+   AKCJE DJ-A
+========================================================= */
+
+function mergeMods(a,b){
+
+ const m=Object.assign({},a);
+
+ m.energy_delta=
+   Math.max(
+     -40,
+     Math.min(
+       40,
+       (a.energy_delta||0)+
+       (b.energy_delta||0)
+     )
+   );
+
+ if(b.bpm_lock){
+
+   m.bpm_lock=true;
+   m.widen_bpm=false;
+ }
+
+ if(b.widen_bpm){
+
+   m.widen_bpm=true;
+   m.bpm_lock=false;
+ }
+
+ if(
+   b.genres &&
+   b.genres.length
+ ){
+   m.genres=b.genres;
+ }
+
+ if(
+   b.exclude_genres &&
+   b.exclude_genres.length
+ ){
+
+   m.exclude_genres=[
+     ...(a.exclude_genres||[]),
+     ...b.exclude_genres
+   ];
+
+ }
+
+ if(b.era)m.era=b.era;
+
+ if(b.commercial)
+   m.commercial=b.commercial;
+
+ [
+   "surprise",
+   "emergency",
+   "peak"
+ ].forEach(k=>{
+   if(b[k])m[k]=true;
+ });
+
+ return m;
+}
+
+function cmd(text){
+
+ S.mods=
+   mergeMods(
+     S.mods,
+     E.parseCommand(text)
+   );
+
+ refresh();
+}
+
+function setCurrent(t,dec){
+
+ if(!t)return;
+
+ const e={
+   ts:Date.now(),
+   id:t.id,
+   artist:t.artist,
+   title:t.title,
+   bpm:t.bpm,
+   key:t.key,
+   energy:t.energy,
+   genre:t.genre,
+   ai:dec&&dec.ai||null,
+   dj:dec?dec.dj:"manual"
+ };
+
+ S.history.push(e);
+
+ if(t.id!=null)
+   S.played.push(t.id);
+
+ S.current={
+   id:t.id,
+   artist:t.artist,
+   title:t.title,
+   bpm:t.bpm,
+   key:t.key,
+   energy:t.energy,
+   genre:t.genre,
+   year:t.year
+ };
+
+ S.selected=null;
+
+ const m=S.mods;
+
+ Object.assign(
+   m,
+   {
+     energy_delta:0,
+     emergency:false,
+     peak:false,
+     surprise:false,
+     widen_bpm:false
+   }
+ );
+
+ refresh();
+}
+
+function act(name,id){
+
+ const t=
+   recs.find(r=>r.id==id)||
+   S.lib.find(r=>r.id==id);
+
+ if(
+   !t &&
+   !["clear"].includes(name)
+ )return;
+
+ if(name==="played"){
+
+   const aiInfo=
+     recs.find(r=>r.id==id);
+
+   if(aiInfo){
+
+     S.recLog.accepted++;
+
+     learn(t,1);
+   }
+
+   setCurrent(
+     t,
+     {
+       dj:
+         aiInfo
+           ?"accepted"
+           :"manual",
+
+       ai:
+         aiInfo
+           ?{
+              rank:aiInfo._rank,
+              score:aiInfo._score,
+              src:aiInfo._src
+            }
+           :null
+     }
+   );
+
+ }else if(name==="select"){
+
+   S.selected=
+     S.selected==id
+       ?null
+       :+id;
+
+   learn(t,.5);
+
+   S.feedback.push({
+     ts:Date.now(),
+     id:t.id,
+     type:"select"
+   });
+
+   render();
+   save();
+
+ }else if(name==="reject"){
+
+   S.rejected.push(t.id);
+
+   S.recLog.rejected++;
+
+   learn(t,-1);
+
+   S.feedback.push({
+     ts:Date.now(),
+     id:t.id,
+     type:"reject"
+   });
+
+   toast(
+     "Odrzucono: "+t.title
+   );
+
+   refresh();
+
+ }else if(name==="save"){
+
+   const i=
+     S.favs.indexOf(t.id);
+
+   if(i>=0)
+     S.favs.splice(i,1);
+   else
+     S.favs.push(t.id);
+
+   toast(
+     i>=0
+       ?"Usunięto z ulubionych"
+       :"Zapisano ★"
+   );
+
+   render();
+   save();
+
+ }else if(name==="more"){
+
+   const g=
+     (t.genre||"")
+       .split(/\s+/)[0];
+
+   if(g)
+     S.mods.genres=[
+       g.toLowerCase()
+     ];
+
+   toast(
+     "Więcej: "+(t.genre||"")
+   );
+
+   refresh();
+
+ }else if(name==="fb"){
+
+   feedbackSheet(t);
+ }
+}
+
+function feedbackSheet(t){
+
+ $("#sheet").innerHTML=`
+ <div class="sheet" data-close>
+  <div>
+   <h2 style="margin-top:0">
+    Co było nie tak? — ${esc(t.title)}
+   </h2>
+
+   <div class="grid2">
+    ${REASONS.map(r=>`
+      <button
+        class="sm"
+        data-reason="${esc(r)}"
+        data-id="${t.id}">
+        ${r}
+      </button>
+    `).join("")}
+   </div>
+
+   <button
+     style="width:100%;margin-top:10px"
+     data-close2>
+     Anuluj
+   </button>
+  </div>
+ </div>`;
+}
+
+function applyReason(r,id){
+
+ const t=
+   S.lib.find(x=>x.id==id);
+
+ if(!t)return;
+
+ S.feedback.push({
+   ts:Date.now(),
+   id:t.id,
+   type:"bad",
+   reason:r
+ });
+
+ const cur=S.current||{};
+
+ learn(t,-0.7);
+
+ if(r==="Already Played"){
+
+   if(!S.played.includes(t.id))
+     S.played.push(t.id);
+
+ }else if(r==="Don't Like Artist"){
+
+   if(!S.blacklist.includes(t.artist))
+     S.blacklist.push(t.artist);
+
+ }else if(r==="Too Slow"){
+
+   S.profile.bpm.push(
+     (cur.bpm||t.bpm)+4
+   );
+
+ }else if(r==="Too Fast"){
+
+   S.profile.bpm.push(
+     (cur.bpm||t.bpm)-4
+   );
+
+ }else if(r==="Too Commercial"){
+
+   S.mods.commercial=-1;
+
+ }else if(r==="Not Commercial Enough"){
+
+   S.mods.commercial=1;
+
+ }else if(r==="Too Low Energy"){
+
+   S.mods.energy_delta=
+     (S.mods.energy_delta||0)+8;
+
+ }else if(r==="Too High Energy"){
+
+   S.mods.energy_delta=
+     (S.mods.energy_delta||0)-8;
+ }
+
+ if(
+   ![
+     "Already Played",
+     "Don't Like Artist"
+   ].includes(r)
+ ){
+   S.rejected.push(t.id);
+ }
+
+ $("#sheet").innerHTML="";
+
+ toast("Zapisano opinię");
+
+ refresh();
+}
+
+function good(id){
+
+ const t=
+   S.lib.find(x=>x.id==id);
+
+ if(t){
+
+   learn(t,.6);
+
+   S.feedback.push({
+     ts:Date.now(),
+     id,
+     type:"good"
+   });
+
+   save();
+
+   toast("👍 Zapamiętane");
+ }
+}
+  function recCard(t){
+  const why = t.reason || "Dobre dopasowanie do aktualnego klimatu.";
+  return `
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <b>${esc(t.title || "Unknown")}</b>
+          <div class="mut">${esc(t.artist || "")}</div>
+        </div>
+        <div class="pill">${t.score != null ? Math.round(t.score) : ""}</div>
+      </div>
+      <div class="mut" style="margin-top:7px">${esc(why)}</div>
+      ${modChips(t)}
+      <div class="row" style="margin-top:9px">
+        <button class="on" data-play="${t.id}">WYBIERZ</button>
+        <button data-good="${t.id}">👍</button>
+      </div>
+    </div>`;
+}
+
+function modChips(t){
+  return `
+    <div class="chips" style="margin-top:8px">
+      <span class="chip">${t.bpm || "—"} BPM</span>
+      <span class="chip">E ${Math.round(t.energy || 0)}</span>
+      <span class="chip">D ${Math.round(t.danceability || 0)}</span>
+      ${t.key ? `<span class="chip">${esc(t.key)}</span>` : ""}
+    </div>`;
+}
+
+function vPlay(){
+  const c=$("#view");
+  if(!c)return;
+
+  const t=S.current;
+  if(!t){
+    c.innerHTML=`
+      <div class="card">
+        <h2>AI DJ Assistant</h2>
+        <div class="mut">Wybierz utwór z biblioteki albo podłącz Denon Prime 4+.</div>
+      </div>`;
+    return;
   }
-  if (my !== reqId) return;
-  const byId = new Map(cands.map(t => [String(t.id), t])), seen = new Set(), pick = [];
-  for (const r of out.recommendations || []) { const t = byId.get(String(r.track_id)); if (t && !seen.has(t.id)) { seen.add(t.id); pick.push(Object.assign({}, t, {_reason: String(r.reason || t._reason), _src: "AI"})); } }
-  if (!pick.length) { aiState = "AI zwróciło nieprawidłowe utwory (ranking lokalny)"; render(); return; }
-  for (const t of recs) if (pick.length < 5 && !seen.has(t.id)) pick.push(t);
-  recs = pick.slice(0, 5).map((t, i) => Object.assign(t, {_rank: i + 1})); aiState = "";
-  if (out.mode_suggestion && out.mode_suggestion !== "null" && MODES.includes(out.mode_suggestion) && out.mode_suggestion !== S.mode) aiState = "AI sugeruje tryb: " + out.mode_suggestion;
+
+  const recs=aiRank(S.lib,t).slice(0,8);
+
+  c.innerHTML=`
+    <div class="card nowplaying">
+      <div class="mut">AKTUALNIE GRANY</div>
+      <h2 style="margin:5px 0">${esc(t.title)}</h2>
+      <div>${esc(t.artist || "")}</div>
+      <div class="chips" style="margin-top:9px">
+        <span class="chip">${t.bpm || "—"} BPM</span>
+        <span class="chip">E ${Math.round(t.energy || 0)}</span>
+        <span class="chip">D ${Math.round(t.danceability || 0)}</span>
+        ${t.key ? `<span class="chip">${esc(t.key)}</span>` : ""}
+        ${t.source ? `<span class="chip">${esc(t.source)}</span>` : ""}
+      </div>
+    </div>
+
+    <h3>NASTĘPNE UTWORY</h3>
+    ${recs.map(recCard).join("")}
+  `;
+}
+
+function vChat(){
+  const c=$("#view");
+  if(!c)return;
+
+  c.innerHTML=`
+    <div class="card">
+      <h2>AI DJ CHAT</h2>
+      <div id="chatlog" class="chatlog"></div>
+      <div class="row" style="margin-top:10px">
+        <input id="chatinput" placeholder="Np. daj mocniejszy numer..." style="flex:1">
+        <button class="on" data-chat-send>WYŚLIJ</button>
+      </div>
+    </div>`;
+}
+
+async function sendChat(){
+  const input=$("#chatinput");
+  const log=$("#chatlog");
+  if(!input || !log)return;
+
+  const q=input.value.trim();
+  if(!q)return;
+
+  log.innerHTML += `<div class="msg me">${esc(q)}</div>`;
+  input.value="";
+
+  const reply=await localReply(q);
+
+  log.innerHTML += `<div class="msg ai">${esc(reply)}</div>`;
+  log.scrollTop=log.scrollHeight;
+}
+
+async function localReply(q){
+  const x=q.toLowerCase();
+
+  if(x.includes("mocniej") || x.includes("energia")){
+    return "Wybierz utwór o wyższej energii i podobnym BPM. Mogę też przygotować kolejne rekomendacje.";
+  }
+
+  if(x.includes("bpm") && S.current){
+    return `Aktualny utwór ma około ${S.current.bpm || "nieznanego"} BPM.`;
+  }
+
+  if(x.includes("następ") || x.includes("dalej")){
+    const r=aiRank(S.lib,S.current).slice(0,3);
+    return r.length
+      ? "Proponuję: " + r.map(t=>`${t.artist} – ${t.title}`).join(" | ")
+      : "Brak wystarczających danych do rekomendacji.";
+  }
+
+  return "Analizuję kontekst imprezy. Spróbuj np. „daj coś mocniejszego”, „co zagrać dalej?” albo „utrzymaj tempo”.";
+}
+
+function stats(){
+  const c=$("#view");
+  if(!c)return;
+
+  const total=S.history.length;
+  const good=S.feedback.filter(x=>x.type==="good").length;
+
+  c.innerHTML=`
+    <div class="card">
+      <h2>STATYSTYKI</h2>
+      <div class="grid">
+        <div class="stat"><b>${total}</b><span>utworów</span></div>
+        <div class="stat"><b>${good}</b><span>polubień</span></div>
+        <div class="stat"><b>${S.lib.length}</b><span>biblioteka</span></div>
+      </div>
+    </div>`;
+}
+
+function chart(){
+  return "";
+}
+
+function statsHtml(){
+  return "";
+}
+
+function vSet(){
+  vSettings();
+}
+
+function vLib(){
+  const c=$("#view");
+  if(!c)return;
+
+  c.innerHTML=`
+    <div class="card">
+      <h2>BIBLIOTEKA</h2>
+      <div class="row">
+        <input id="libSearch" placeholder="Szukaj utworu..." style="flex:1">
+      </div>
+    </div>
+    <div id="libList"></div>`;
+
+  libList();
+}
+
+function libList(){
+  const c=$("#libList");
+  if(!c)return;
+
+  const q=($("#libSearch")?.value || "").toLowerCase();
+
+  const arr=S.lib
+    .filter(t=>
+      !q ||
+      String(t.title||"").toLowerCase().includes(q) ||
+      String(t.artist||"").toLowerCase().includes(q)
+    )
+    .slice(0,100);
+
+  c.innerHTML=arr.map(t=>`
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <b>${esc(t.title || "")}</b>
+          <div class="mut">${esc(t.artist || "")}</div>
+        </div>
+        <button class="on" data-play="${t.id}">WYBIERZ</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function chipSel(){
+  return "";
+}
+
+function vSettings(){
+  const c=$("#view");
+  if(!c)return;
+
+  c.innerHTML=`
+    <div class="card">
+      <h2>OPENAI</h2>
+      <div class="mut">
+        Klucz API jest przechowywany lokalnie w aplikacji.
+      </div>
+
+      <input
+        id="apiKey"
+        type="password"
+        placeholder="sk-..."
+        value="${esc(S.settings.apiKey || "")}"
+        style="margin-top:10px;width:100%"
+      >
+
+      <button class="on" data-save-api style="margin-top:10px">
+        ZAPISZ KLUCZ
+      </button>
+    </div>
+
+    <div class="card stagelinq-card">
+      <h2>DENON PRIME 4+ • STAGELINQ</h2>
+
+      <div class="mut">
+        Telefon i Prime 4+ powinny być w tej samej sieci Wi-Fi.
+        Aplikacja próbuje wykryć Denona i odczytać dane aktualnie granego utworu.
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="on" data-stagelinq-discover>
+          WYKRYJ DENON PRIME 4+
+        </button>
+
+        <button data-stagelinq-multicast>
+          PRZYGOTUJ WI-FI
+        </button>
+      </div>
+
+      <div
+        id="stagelinq-status"
+        class="stagelinq-status"
+        style="margin-top:10px"
+      >
+        Status: gotowy do wykrywania.
+      </div>
+
+      <div id="stagelinq-nowplaying" style="margin-top:10px"></div>
+    </div>
+
+    <div class="card">
+      <h2>PROFIL TŁUMU</h2>
+
+      <div class="mut">
+        Energia: ${Math.round(S.profile.energy || 70)}%
+      </div>
+
+      <input
+        type="range"
+        id="profileEnergy"
+        min="0"
+        max="100"
+        value="${S.profile.energy || 70}"
+        style="width:100%"
+      >
+
+      <div class="mut">
+        Taneczność: ${Math.round(S.profile.danceability || 70)}%
+      </div>
+
+      <input
+        type="range"
+        id="profileDance"
+        min="0"
+        max="100"
+        value="${S.profile.danceability || 70}"
+        style="width:100%"
+      >
+    </div>
+
+    <div class="card">
+      <h2>DANE</h2>
+      <button data-export>EKSPORTUJ DANE</button>
+      <button data-clear style="margin-left:6px">WYCZYŚĆ DANE</button>
+    </div>
+  `;
+}
+
+function stagePlugin(){
+  return window.Capacitor &&
+    window.Capacitor.Plugins &&
+    window.Capacitor.Plugins.StageLinq;
+}
+
+function stageStatus(text,online=false){
+  const el=$("#stagelinq-status");
+  if(!el)return;
+
+  el.textContent="Status: "+text;
+  el.classList.toggle("stagelinq-online",!!online);
+  el.classList.toggle("stagelinq-offline",!online);
+}
+
+function showStageNowPlaying(t){
+  const el=$("#stagelinq-nowplaying");
+  if(!el)return;
+
+  if(!t){
+    el.innerHTML="";
+    return;
+  }
+
+  el.innerHTML=`
+    <div class="nowplaying">
+      <div class="mut">TERAZ Z DENONA</div>
+      <b>${esc(t.title || "Nieznany utwór")}</b>
+      <div>${esc(t.artist || "")}</div>
+      <div class="chips" style="margin-top:8px">
+        ${t.bpm ? `<span class="chip">${t.bpm} BPM</span>` : ""}
+        ${t.key ? `<span class="chip">${esc(t.key)}</span>` : ""}
+        ${t.deck ? `<span class="chip">DECK ${esc(t.deck)}</span>` : ""}
+      </div>
+    </div>`;
+}
+
+async function handleStageNowPlaying(data){
+  if(!data)return;
+
+  const artist=String(data.artist || "").trim();
+  const title=String(data.title || "").trim();
+
+  if(!artist && !title)return;
+
+  const bpm=Number(data.bpm) || 0;
+  const key=String(data.key || "").trim();
+  const genre=String(data.genre || "").trim();
+
+  let track=S.lib.find(x=>
+    String(x.artist||"").toLowerCase()===artist.toLowerCase() &&
+    String(x.title||"").toLowerCase()===title.toLowerCase()
+  );
+
+  if(!track){
+    track={
+      id:S.nextId++,
+      title:title || "Unknown",
+      artist:artist || "Unknown",
+      genre,
+      bpm,
+      key,
+      energy:60,
+      danceability:60,
+      popularity:50,
+      vocal:"vocal",
+      tags:[],
+      source:"StageLinQ"
+    };
+
+    S.lib.push(track);
+  }else{
+    if(bpm)track.bpm=bpm;
+    if(key)track.key=key;
+    if(genre)track.genre=genre;
+    track.source="StageLinQ";
+  }
+
+  const same =
+    S.current &&
+    String(S.current.artist||"").toLowerCase()===artist.toLowerCase() &&
+    String(S.current.title||"").toLowerCase()===title.toLowerCase();
+
+  S.stageLinq.connected=true;
+  S.stageLinq.nowPlaying={
+    ...data,
+    artist,
+    title,
+    bpm,
+    key,
+    genre
+  };
+
+  if(!same){
+    setCurrent(track,{dj:"stagelinq",source:"StageLinQ"});
+  }
+
+  save();
+  showStageNowPlaying(S.stageLinq.nowPlaying);
+}
+
+async function installStageLinqListeners(){
+  if(S.stageLinq.listenersReady)return;
+
+  const plugin=stagePlugin();
+
+  if(!plugin){
+    stageStatus("natywny moduł StageLinQ nie jest dostępny. Zainstaluj APK z aktualnego workflow.");
+    return;
+  }
+
+  try{
+    if(plugin.addListener){
+
+      await plugin.addListener("deviceDiscovered",data=>{
+        S.stageLinq.device=data || null;
+
+        stageStatus(
+          "wykryto " +
+          (data?.deviceName || "Denon Prime 4+") +
+          (data?.ip ? " • "+data.ip : ""),
+          true
+        );
+
+        toast("Denon Prime 4+ wykryty");
+      });
+
+      await plugin.addListener("directoryReady",data=>{
+        stageStatus(
+          "Directory OK • oczekiwanie na StateMap" +
+          (data?.port ? " • port "+data.port : ""),
+          true
+        );
+      });
+
+      await plugin.addListener("stateMapConnected",data=>{
+        S.stageLinq.connected=true;
+        stageStatus("StateMap połączony — oczekiwanie na dane decków.",true);
+      });
+
+      await plugin.addListener("nowPlaying",data=>{
+        handleStageNowPlaying(data);
+      });
+    }
+
+    S.stageLinq.listenersReady=true;
+    save();
+
+  }catch(e){
+    stageStatus("błąd listenerów: "+(e.message || String(e)));
+  }
+}
+
+async function discoverStageLinq(){
+  const plugin=stagePlugin();
+
+  if(!plugin){
+    stageStatus("Brak natywnego modułu StageLinQ w tym APK.");
+    return;
+  }
+
+  await installStageLinqListeners();
+
+  try{
+    if(typeof plugin.acquireMulticastLock==="function"){
+      await plugin.acquireMulticastLock();
+    }
+
+    if(typeof plugin.discover==="function"){
+      stageStatus("Wyszukiwanie Denon Prime 4+…");
+      await plugin.discover();
+    }else{
+      stageStatus(
+        "Moduł jest obecny, ale ta wersja APK nie udostępnia funkcji discover()."
+      );
+    }
+
+  }catch(e){
+    stageStatus("Błąd wykrywania: "+(e.message || String(e)));
+  }
+}
+
+function pickSheet(){
+  return "";
+}
+
+function importCSV(text){
+  const lines=String(text||"")
+    .split(/\r?\n/)
+    .map(x=>x.trim())
+    .filter(Boolean);
+
+  if(!lines.length)return;
+
+  const first=lines[0].toLowerCase();
+
+  for(let i=first.includes("title") ? 1 : 0;i<lines.length;i++){
+
+    const p=lines[i].split(",");
+
+    if(p.length<2)continue;
+
+    const artist=(p[0]||"").trim();
+    const title=(p[1]||"").trim();
+
+    if(!title)continue;
+
+    S.lib.push({
+      id:S.nextId++,
+      artist,
+      title,
+      bpm:Number(p[2])||0,
+      genre:p[3]||"",
+      energy:Number(p[4])||60,
+      danceability:Number(p[5])||60,
+      popularity:Number(p[6])||50,
+      vocal:"vocal",
+      tags:[]
+    });
+  }
+
+  save();
+  render();
+  toast("Biblioteka zaimportowana");
+}
+
+function render(){
+  const view=$("#view");
+  if(!view)return;
+
+  if(S.page==="play")vPlay();
+  else if(S.page==="chat")vChat();
+  else if(S.page==="stats")stats();
+  else if(S.page==="lib")vLib();
+  else if(S.page==="settings")vSettings();
+  else vPlay();
+
+  installStageLinqListeners();
+}
+
+document.addEventListener("click",e=>{
+
+  const d=e.target.closest("[data-page]");
+  if(d){
+    S.page=d.dataset.page;
+    save();
+    render();
+    return;
+  }
+
+  const p=e.target.closest("[data-play]");
+  if(p){
+    const t=S.lib.find(x=>String(x.id)===String(p.dataset.play));
+    if(t){
+      setCurrent(t,{dj:"manual"});
+      render();
+    }
+    return;
+  }
+
+  const g=e.target.closest("[data-good]");
+  if(g){
+    good(Number(g.dataset.good));
+    return;
+  }
+
+  if(e.target.closest("[data-chat-send]")){
+    sendChat();
+    return;
+  }
+
+  if(e.target.closest("[data-save-api]")){
+    const key=$("#apiKey")?.value.trim() || "";
+    S.settings.apiKey=key;
+    save();
+    toast("Klucz zapisany lokalnie");
+    return;
+  }
+
+  if(e.target.closest("[data-stagelinq-discover]")){
+    discoverStageLinq();
+    return;
+  }
+
+  if(e.target.closest("[data-stagelinq-multicast]")){
+    const plugin=stagePlugin();
+
+    if(!plugin || typeof plugin.acquireMulticastLock!=="function"){
+      stageStatus("Brak natywnego modułu StageLinQ.");
+      return;
+    }
+
+    plugin.acquireMulticastLock()
+      .then(()=>stageStatus("Multicast Wi-Fi przygotowany."))
+      .catch(err=>stageStatus("Błąd Wi-Fi: "+(err.message || String(err))));
+
+    return;
+  }
+
+  if(e.target.closest("[data-export]")){
+    const blob=new Blob(
+      [JSON.stringify(S,null,2)],
+      {type:"application/json"}
+    );
+
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="ai-dj-assistant-data.json";
+    a.click();
+
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    return;
+  }
+
+  if(e.target.closest("[data-clear]")){
+    if(confirm("Wyczyścić lokalne dane aplikacji?")){
+      localStorage.removeItem(KEY);
+      location.reload();
+    }
+  }
+});
+
+document.addEventListener("input",e=>{
+
+  if(e.target.id==="libSearch"){
+    libList();
+  }
+
+  if(e.target.id==="profileEnergy"){
+    S.profile.energy=Number(e.target.value);
+    save();
+  }
+
+  if(e.target.id==="profileDance"){
+    S.profile.danceability=Number(e.target.value);
+    save();
+  }
+});
+
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter" && e.target.id==="chatinput"){
+    sendChat();
+  }
+});
+
+function quick(){
+  S.page="play";
   render();
 }
 
-/* ------------------------------------------------ akcje DJ-a */
-function mergeMods(a, b) { const m = Object.assign({}, a);
-  m.energy_delta = Math.max(-40, Math.min(40, (a.energy_delta || 0) + (b.energy_delta || 0)));
-  if (b.bpm_lock) { m.bpm_lock = true; m.widen_bpm = false; } if (b.widen_bpm) { m.widen_bpm = true; m.bpm_lock = false; }
-  if (b.genres && b.genres.length) m.genres = b.genres; if (b.exclude_genres && b.exclude_genres.length) m.exclude_genres = [...new Set([...(a.exclude_genres || []), ...b.exclude_genres])];
-  if (b.era) m.era = b.era; if (b.commercial) m.commercial = b.commercial;
-  ["surprise", "emergency", "peak"].forEach(k => { if (b[k]) m[k] = true; }); return m; }
-function cmd(text) { S.mods = mergeMods(S.mods, E.parseCommand(text)); refresh(); }
-function setCurrent(t, dec) {
-  const e = {ts: Date.now(), id: t.id, artist: t.artist, title: t.title, bpm: t.bpm, key: t.key, energy: t.energy, genre: t.genre, ai: dec && dec.ai || null, dj: dec ? dec.dj : "manual"};
-  S.history.push(e); if (t.id != null) S.played.push(t.id); S.current = {id: t.id, artist: t.artist, title: t.title, bpm: t.bpm, key: t.key, energy: t.energy, genre: t.genre, year: t.year};
-  S.selected = null; const m = S.mods; Object.assign(m, {energy_delta: 0, emergency: false, peak: false, surprise: false, widen_bpm: false}); refresh();
-}
-function act(name, id) {
-  const t = recs.find(r => r.id == id) || S.lib.find(r => r.id == id); if (!t && !["clear"].includes(name)) return;
-  if (name === "played") { const aiInfo = recs.find(r => r.id == id); if (aiInfo) { S.recLog.accepted++; learn(t, 1); } setCurrent(t, {dj: aiInfo ? "accepted" : "manual", ai: aiInfo ? {rank: aiInfo._rank, score: aiInfo._score, src: aiInfo._src} : null}); }
-  else if (name === "select") { S.selected = S.selected == id ? null : +id; learn(t, .5); S.feedback.push({ts: Date.now(), id: t.id, type: "select"}); render(); save(); }
-  else if (name === "reject") { S.rejected.push(t.id); S.recLog.rejected++; learn(t, -1); S.feedback.push({ts: Date.now(), id: t.id, type: "reject"}); toast("Odrzucono: " + t.title); refresh(); }
-  else if (name === "save") { const i = S.favs.indexOf(t.id); if (i >= 0) S.favs.splice(i, 1); else S.favs.push(t.id); toast(i >= 0 ? "Usunięto z ulubionych" : "Zapisano ★"); render(); save(); }
-  else if (name === "more") { const g = (t.genre || "").split(/\s+/)[0]; if (g) S.mods.genres = [g.toLowerCase()]; toast("Więcej: " + (t.genre || "")); refresh(); }
-  else if (name === "fb") feedbackSheet(t);
-}
-function feedbackSheet(t, good) {
-  $("#sheet").innerHTML = `<div class="sheet" data-close><div><h2 style="margin-top:0">Co było nie tak? — ${esc(t.title)}</h2><div class="grid2">${REASONS.map(r => `<button class="sm" data-reason="${esc(r)}" data-id="${t.id}">${r}</button>`).join("")}</div><button style="width:100%;margin-top:10px" data-close2>Anuluj</button></div></div>`;
-}
-function applyReason(r, id) {
-  const t = S.lib.find(x => x.id == id); if (!t) return; S.feedback.push({ts: Date.now(), id: t.id, type: "bad", reason: r});
-  const cur = S.current || {}; learn(t, -0.7);
-  if (r === "Already Played") { if (!S.played.includes(t.id)) S.played.push(t.id); }
-  else if (r === "Don't Like Artist") { if (!S.blacklist.includes(t.artist)) S.blacklist.push(t.artist); }
-  else if (r === "Too Slow") S.profile.bpm.push((cur.bpm || t.bpm) + 4); else if (r === "Too Fast") S.profile.bpm.push((cur.bpm || t.bpm) - 4);
-  else if (r === "Too Commercial") S.mods.commercial = -1; else if (r === "Not Commercial Enough") S.mods.commercial = 1;
-  else if (r === "Too Low Energy") S.mods.energy_delta = (S.mods.energy_delta || 0) + 8; else if (r === "Too High Energy") S.mods.energy_delta = (S.mods.energy_delta || 0) - 8;
-  if (!["Already Played", "Don't Like Artist"].includes(r)) S.rejected.push(t.id);
-  $("#sheet").innerHTML = ""; toast("Zapisano opinię"); refresh();
-}
-function good(id) { const t = S.lib.find(x => x.id == id); if (t) { learn(t, .6); S.feedback.push({ts: Date.now(), id, type: "good"}); save(); toast("👍 Zapamiętane"); } }
-
-/* ------------------------------------------------ widoki */
-function recCard(t, n5) {
-  const ec = Math.round(t._energy_change), bc = t._bpm_change, fav = S.favs.includes(t.id);
-  return `<div class="card rec ${S.selected == t.id ? "sel" : ""}"><div class="top"><div class="rank">${n5 ? "→" : ""}${t._rank || ""}</div>
-  <div style="flex:1"><div style="font-weight:800;font-size:17px">${esc(t.artist)} – ${esc(t.title)} ${t._src === "AI" ? '<span class="badge ai">AI</span>' : ""}</div>
-  <div class="meta"><span>${Math.round(t.bpm || 0)} BPM</span><span>${esc(E.normalizeKey(t.key) || t.key || "?")}</span><span>Energy ${Math.round(t.energy ?? 0)}</span><span>${esc(t.genre || "")}</span>
-  <span class="${ec >= 0 ? "up" : "dn"}">${ec >= 0 ? "+" : ""}${ec} Energy</span><span>${bc >= 0 ? "+" : ""}${bc} BPM</span></div></div>
-  <div class="score">${Math.round(t._score)}%</div></div><div class="reason">${esc(t._reason)}</div>
-  <div class="grid3"><button class="gr sm" data-a="played" data-id="${t.id}">PLAYED</button><button class="sm ${S.selected == t.id ? "on" : ""}" data-a="select" data-id="${t.id}">SELECT</button><button class="rd sm" data-a="reject" data-id="${t.id}">REJECT</button>
-  <button class="sm" data-a="save" data-id="${t.id}">${fav ? "★ SAVED" : "☆ SAVE"}</button><button class="sm" data-a="more" data-id="${t.id}">MORE LIKE THIS</button>
-  <div class="row"><button class="sm" data-good="${t.id}">👍</button><button class="sm" data-a="fb" data-id="${t.id}">👎</button></div></div></div>`;
-}
-function modChips() { const m = S.mods, c = []; if (m.energy_delta) c.push((m.energy_delta > 0 ? "+" : "") + m.energy_delta + " energii"); if (m.bpm_lock) c.push("KEEP BPM"); if (m.widen_bpm) c.push("CHANGE BPM");
-  if (m.genres.length) c.push("→ " + m.genres.join("/")); if (m.exclude_genres.length) c.push("bez: " + m.exclude_genres.join("/").replace("__CURRENT__", "obecnego")); if (m.era) c.push(m.era);
-  if (m.commercial) c.push(m.commercial > 0 ? "komercyjnie" : "mniej komercji"); if (m.surprise) c.push("SURPRISE"); if (m.emergency) c.push("EMERGENCY"); if (m.peak) c.push("PEAK"); return c; }
-
-function vPlay() {
-  const c = S.current, issues = E.detectIssues(S.history), chips = modChips();
-  let h = `<div class="chips" style="margin:6px 0 10px;overflow:auto;flex-wrap:nowrap">${MODES.map(m => `<button class="sm ${S.mode === m ? 'on' : ''}" data-mode="${m}" style="white-space:nowrap">${m}</button>`).join("")}</div>`;
-  h += `<div class="card cur"><div class="mut">TERAZ GRAM • ${hhmm(hourNow())} • ${esc(S.mode)}</div>${c ? `<div class="name">${esc(c.artist)} – ${esc(c.title)}</div>
-  <div class="big"><div><b>${Math.round(c.bpm || 0)}</b><small>BPM</small></div><div><b>${esc(E.normalizeKey(c.key) || c.key || "–")}</b><small>KEY</small></div><div><b>${Math.round(c.energy ?? 0)}</b><small>ENERGY</small></div></div>` : `<div class="name">Nie wybrano utworu</div>`}
-  <button style="width:100%;margin-top:10px" class="${c ? "" : "pk"}" data-pick>${c ? "ZMIEŃ AKTUALNY UTWÓR" : "WYBIERZ CO GRASZ TERAZ"}</button></div>`;
-  if (!c) return h + `<div class="card mut">${S.lib.length ? "Wybierz utwór, który teraz gra — dostaniesz rekomendacje." : "Biblioteka jest pusta. Wejdź w zakładkę BIBLIOTEKA i zaimportuj CSV/JSON albo wczytaj DEMO."}</div>`;
-  h += `<div class="grid3"><button data-q="raise">⬆ RAISE ENERGY</button><button data-q="lower">⬇ LOWER ENERGY</button><button class="${S.mods.bpm_lock ? "on" : ""}" data-q="keepbpm">KEEP BPM</button>
-  <button class="${S.mods.widen_bpm ? "on" : ""}" data-q="changebpm">CHANGE BPM</button><button data-q="genre">CHANGE GENRE</button><button data-q="surprise">SURPRISE ME</button>
-  <button class="pk" data-q="peak">PEAK TIME</button><button class="on" data-q="next5">NEXT 5</button><button class="em" data-q="emergency">PARKIET UMIERA</button></div>`;
-  if (chips.length) h += `<div class="chips" style="margin:10px 0">${chips.map(x => `<span class="chip act">${esc(x)}</span>`).join("")}<button class="sm" data-q="clear" style="min-height:30px;padding:2px 10px">✕ wyczyść</button></div>`;
-  if (issues.length) h += `<div class="warn" style="margin-top:10px">⚠ ${esc(issues.slice(-2).join(" • "))}</div>`;
-  if (recLvl > 0 && recs.length) h += `<div class="warn">Filtry poluzowane (za mało utworów spełniało wszystkie warunki).</div>`;
-  if (aiState) h += `<div class="warn">${esc(aiState)}</div>`;
-  if (view5) { h += `<h2>NEXT 5 — sekwencja</h2>` + (next5.length ? next5.map((t, i) => recCard(Object.assign({}, t, {_rank: i + 1}), true)).join("") : `<div class="card mut">Za mało pasujących utworów.</div>`); }
-  else { h += `<h2>AI NEXT TRACKS — TOP 5</h2>` + (recs.length ? recs.map(t => recCard(t)).join("") : `<div class="card mut">Brak kandydatów. Zaimportuj więcej utworów lub kliknij ✕ wyczyść.</div>`); }
-  return h;
-}
-function vChat() {
-  return `<h2>AI DJ CHAT</h2><div id="chatlog">${S.chat.map(m => `<div class="msg ${m.me ? "me" : "ai"}">${esc(m.text)}</div>`).join("") || '<div class="mut">Napisz np.: „Parkiet zaczyna siadać”, „Zejdź z energii o 10%”, „Przejdź z house do commercial”, „Zostań w latach 2000”.</div>'}</div>
-  <div class="row" style="margin-top:12px;position:sticky;bottom:78px"><input id="chatin" placeholder="Napisz polecenie…" style="flex:4"><button class="on" data-send style="flex:1">▶</button></div>
-  ${S.current ? recs.map(t => recCard(t)).join("") : '<div class="card mut">Najpierw wybierz aktualny utwór na ekranie GRAJ.</div>'}`;
-}
-async function sendChat() {
-  const inp = $("#chatin"), text = inp.value.trim(); if (!text) return; inp.value = ""; S.chat.push({me: 1, text});
-  if (!S.current) { S.chat.push({text: "Najpierw wybierz aktualny utwór na ekranie GRAJ."}); render(); return; }
-  const m = E.parseCommand(text), c0 = ctx(); S.mods = mergeMods(S.mods, m); const target = E.energyTarget(S.mode, c0.hour, c0.recent_energies, S.crowd.crowd_energy, S.mods.energy_delta, S.current.energy);
-  const local = localReply(m, target); S.chat.push({text: local}); refresh(); tab = "chat"; render();
-  if (S.cfg.useAI && S.cfg.apiKey) { try {
-    const out = await openai([{role: "system", content: SYS + ' Format JSON: {"reply":"maks. 3 zdania po polsku"}'}, {role: "user", content: JSON.stringify({wiadomosc_dj: text, context: summary(ctx()), kandydaci: recs.map(compact)})}]);
-    if (out.reply) { S.chat[S.chat.length - 1] = {text: String(out.reply)}; render(); save(); } } catch (e) { S.chat.push({text: "(AI niedostępne: " + e.message + " — działa ranking lokalny)"}); render(); } }
+function endSet(){
+  S.current=null;
   save();
-}
-function localReply(m, t) { t = Math.round(t);
-  if (m.emergency) return "Parkiet ratujemy! Podbijam rozpoznawalność i energię — poniżej bezpieczne hity o wysokiej danceability."; if (m.peak) return `Robimy PEAK TIME. Cel energii ~${t}. Proponuję:`;
-  if (m.energy_delta > 0) return `Podnoszę energię (cel ~${t}). Proponuję:`; if (m.energy_delta < 0) return `Schodzę z energii (cel ~${t}). Proponuję:`;
-  if (m.bpm_lock) return "Zostajemy przy aktualnym BPM. Proponuję:"; if (m.genres.length) return `Przechodzimy na ${m.genres.join(", ")}. Proponuję:`; if (m.era) return `Zostajemy w klimacie ${m.era}. Proponuję:`;
-  if (m.commercial === 2) return "Czas na klasyki, które wszyscy znają. Proponuję:"; if (m.commercial === -1) return "Odchodzimy od komercji. Proponuję:"; if (m.surprise) return "Coś nieoczywistego, ale bezpiecznego dla parkietu. Proponuję:";
-  return "Zaktualizowałem rekomendacje pod Twoje polecenie. Proponuję:"; }
-
-function stats(h) { const e = h.map(x => x.energy).filter(x => x != null), b = h.map(x => x.bpm).filter(Boolean), avg = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : 0, cnt = k => { const o = {}; h.forEach(x => { if (x[k]) o[x[k]] = (o[x[k]] || 0) + 1; }); return Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([k, v]) => `${k} (${v})`).join(", ") || "–"; };
-  const acc = h.filter(x => x.dj === "accepted").length; return {n: h.length, avgBpm: avg(b), avgE: avg(e), maxE: e.length ? Math.max(...e) : 0, genres: cnt("genre"), artists: cnt("artist"),
-    mins: h.length > 1 ? (h[h.length - 1].ts - h[0].ts) / 60000 : 0, acc, manual: h.length - acc, rej: S.recLog.rejected, eff: (acc + S.recLog.rejected) ? Math.round(100 * acc / (acc + S.recLog.rejected)) : 0}; }
-function chart(vals, color, lo, hi) { if (vals.length < 2) return '<svg class="chart"></svg>'; lo = lo ?? Math.min(...vals) - 2; hi = hi ?? Math.max(...vals) + 2; const w = 300, hgt = 90, pts = vals.map((v, i) => `${(i / (vals.length - 1) * (w - 10) + 5).toFixed(1)},${(hgt - 6 - (v - lo) / Math.max(1, hi - lo) * (hgt - 12)).toFixed(1)}`).join(" ");
-  return `<svg class="chart" viewBox="0 0 ${w} ${hgt}" preserveAspectRatio="none"><polyline fill="none" stroke="${color}" stroke-width="2.5" points="${pts}"/></svg>`; }
-function statsHtml(h) { const s = stats(h); return `<div class="card"><div class="grid2"><div><div class="mut">Utworów</div><b>${s.n}</b></div><div><div class="mut">Długość seta</div><b>${Math.round(s.mins)} min</b></div>
-  <div><div class="mut">Średnie BPM</div><b>${s.avgBpm.toFixed(1)}</b></div><div><div class="mut">Średnia / max energia</div><b>${s.avgE.toFixed(0)} / ${s.maxE}</b></div></div>
-  <div class="mut" style="margin-top:8px">Gatunki: ${esc(s.genres)}</div><div class="mut">Artyści: ${esc(s.artists)}</div>
-  <div class="mut" style="margin-top:8px">Rekomendacje zaakceptowane: <b>${s.acc}</b> • zagrane spoza listy: <b>${s.manual}</b> • odrzucone: <b>${s.rej}</b> • skuteczność: <b>${s.eff}%</b></div></div>
-  <div class="mut">Energia w czasie</div>${chart(h.map(x => x.energy ?? 0), "#ff2d78", 0, 100)}<div class="mut" style="margin-top:8px">BPM w czasie</div>${chart(h.map(x => x.bpm || 0), "#00e5ff")}`; }
-function vSet() {
-  let h = `<h2>Bieżący set</h2>${S.history.length ? statsHtml(S.history) : '<div class="card mut">Jeszcze nic nie zagrano.</div>'}`;
-  h += `<h2>Historia</h2><div class="card">${S.history.slice().reverse().map((x, i) => `<div class="item"><div><b>${S.history.length - i}. ${esc(x.artist)} – ${esc(x.title)}</b><div class="mut">${new Date(x.ts).toLocaleTimeString("pl", {hour: "2-digit", minute: "2-digit"})} • ${Math.round(x.bpm || 0)} BPM • ${esc(x.key || "")} • E${Math.round(x.energy ?? 0)} • ${x.dj === "accepted" ? "AI #" + (x.ai ? x.ai.rank : "?") + " → DJ: przyjęte" : "DJ: ręcznie"}</div></div></div>`).join("") || '<div class="mut">Pusto</div>'}</div>`;
-  h += `<button class="pk" style="width:100%" data-endset>ZAKOŃCZ SET I POKAŻ ANALIZĘ</button>`;
-  if (S.sets.length) h += `<h2>Poprzednie sety</h2>` + S.sets.slice().reverse().map(s => `<div class="card"><b>${new Date(s.start).toLocaleString("pl")}</b><div class="mut">${s.n} utworów • ${s.avgBpm.toFixed(0)} BPM • śr. energia ${s.avgE.toFixed(0)} • skuteczność AI ${s.eff}%</div></div>`).join("");
-  return h;
-}
-function vLib() {
-  return `<h2>Biblioteka (${S.lib.length} utworów)</h2><div class="card"><div class="mut">Źródło muzyki: import własnego katalogu (CSV/JSON). Nie znalazłem publicznej dokumentacji API TheMashup, więc katalog wczytujesz z pliku CSV/JSON (np. eksport z Rekordbox/Serato/Mixed In Key). Adapter jest gotowy na przyszłą oficjalną integrację.</div>
-  <input type="file" id="file" accept=".csv,.json,.txt,text/csv,application/json" class="hide"><div class="grid2" style="margin-top:10px"><button class="on" data-import>IMPORT CSV / JSON</button><button data-demo>WCZYTAJ DEMO (fikcyjne)</button></div>
-  <button style="width:100%;margin-top:8px" data-fmt>Pokaż wzór pliku</button></div>
-  <input id="libq" placeholder="Szukaj (artysta, tytuł, gatunek)…"><div id="liblist"></div>
-  <div class="grid2" style="margin-top:10px"><button data-addtrack>+ Dodaj utwór ręcznie</button><button class="rd" data-clearlib>Usuń bibliotekę</button></div>`;
-}
-function libList() { const q = ($("#libq") || {value: ""}).value.toLowerCase(), r = S.lib.filter(t => !q || `${t.artist} ${t.title} ${t.genre}`.toLowerCase().includes(q)).slice(0, 60);
-  $("#liblist").innerHTML = `<div class="card">${r.map(t => `<div class="item"><div><b>${esc(t.artist)} – ${esc(t.title)}</b><div class="mut">${Math.round(t.bpm || 0)} BPM • ${esc(E.normalizeKey(t.key) || t.key || "?")} • E${Math.round(t.energy ?? 0)} • ${esc(t.genre || "")} ${S.favs.includes(t.id) ? "★" : ""}</div></div><button class="sm" data-setcur="${t.id}">GRAM</button></div>`).join("") || '<div class="mut">Brak wyników</div>'}</div>`; }
-function chipSel(list, sel, attr, single) { return `<div class="chips">${list.map(x => `<button class="sm ${(single ? sel === x : (sel || []).includes(x)) ? "on" : ""}" data-${attr}="${esc(x)}">${esc(x)}</button>`).join("")}</div>`; }
-function vSettings() {
-  const p = djProfile(), top = o => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, 4).filter(x => x[1] > 0.05).map(x => x[0]).join(", ") || "jeszcze się uczę";
-  return `<h2>OpenAI</h2><div class="card"><label>Klucz API (zapisany tylko na tym telefonie)</label><input id="apikey" type="password" placeholder="sk-…" value="${esc(S.cfg.apiKey)}" autocomplete="off">
-  <label>Model</label><input id="model" value="${esc(S.cfg.model)}"><div class="row" style="margin-top:10px"><button class="${S.cfg.useAI ? "on" : ""}" data-toggleai>AI: ${S.cfg.useAI ? "WŁĄCZONE" : "WYŁĄCZONE"}</button><button data-testkey>Testuj klucz</button></div>
-  <div class="mut" style="margin-top:8px">Bez klucza aplikacja działa w trybie lokalnym (bez AI). Do OpenAI trafia tylko 15 najlepszych kandydatów.</div></div>
-  <h2>Denon Prime 4+ • StageLinQ</h2><div class="card">
-  <div class="mut">Telefon i Prime 4+ powinny być w tej samej sieci routera Wi-Fi. Ta kompilacja zawiera natywny punkt integracji i diagnostykę Wi-Fi; właściwe wykrywanie StageLinQ, odczyt decków i pobieranie biblioteki wymagają jeszcze implementacji protokołu.</div>
-  <div class="row" style="margin-top:10px"><button class="on" data-stagelinq-check>SPRAWDŹ MODUŁ</button><button data-stagelinq-multicast>PRZYGOTUJ WI-FI</button></div>
-  <div id="stagelinq-status" class="mut" style="margin-top:8px">Status: moduł nie został jeszcze sprawdzony.</div></div>
-  <h2>Profil publiczności</h2><div class="card"><label>Wiek</label>${chipSel(AGES, S.crowd.age_groups, "age")}<label>Muzyka</label>${chipSel(MUSIC, S.crowd.music_preferences, "mus")}
-  <label>Wielkość tłumu</label>${chipSel(SIZES, S.crowd.crowd_size, "size", 1)}<label>Typ eventu</label>${chipSel(EVENTS, S.crowd.event_type, "event", 1)}
-  <label>Energia parkietu: <b id="cev">${S.crowd.crowd_energy}</b></label><input type="range" min="1" max="100" value="${S.crowd.crowd_energy}" id="crowden"></div>
-  <h2>Godzina</h2><div class="card"><label>Ręczna godzina (puste = zegar telefonu), np. 01:42</label><input id="hourov" placeholder="HH:MM" value="${esc(S.cfg.hourOverride)}"></div>
-  <h2>Wagi rankingu</h2><div class="card">${Object.keys(E.DEFAULT_WEIGHTS).map(k => `<label>${WLABEL[k]}: <b id="wv_${k}">${Math.round(S.weights[k] * 100)}%</b></label><input type="range" min="0" max="50" value="${Math.round(S.weights[k] * 100)}" data-w="${k}">`).join("")}<button style="width:100%;margin-top:10px" data-wreset>Przywróć domyślne</button></div>
-  <h2>Twój profil DJ-a</h2><div class="card"><div class="mut">Ulubione gatunki: ${esc(top(p.genre_affinity))}</div><div class="mut">Ulubieni artyści: ${esc(top(p.artist_affinity))}</div><div class="mut">Typowy BPM: ${p.bpm_center ? Math.round(p.bpm_center) : "jeszcze się uczę"}</div>
-  <div class="mut">Czarna lista: ${esc(S.blacklist.join(", ") || "pusta")}</div><div class="grid2" style="margin-top:8px"><button data-resetprofile>Reset profilu</button><button data-clearbl>Wyczyść czarną listę</button></div></div>
-  <h2>Dane</h2><button class="rd" style="width:100%" data-resetall>Usuń wszystkie dane aplikacji</button><div class="mut" style="margin:14px 2px">AI DJ Assistant • AI rekomenduje, DJ decyduje. Aplikacja nigdy nie odtwarza muzyki sama.</div>`;
+  render();
+  toast("Set zakończony");
 }
 
-/* ------------------------------------------------ wybór utworu / import */
-function pickSheet() {
-  $("#sheet").innerHTML = `<div class="sheet"><div><h2 style="margin-top:0">Co teraz gra?</h2><input id="pq" placeholder="Szukaj w bibliotece…"><div id="pl"></div>
-  <h2>Albo wpisz ręcznie</h2><div class="grid2"><input id="m_a" placeholder="Artysta"><input id="m_t" placeholder="Tytuł"><input id="m_b" placeholder="BPM" inputmode="decimal"><input id="m_k" placeholder="Tonacja (8A / Am)"><input id="m_e" placeholder="Energia 1-100" inputmode="numeric"><input id="m_g" placeholder="Gatunek"></div>
-  <div class="grid2" style="margin-top:8px"><button class="on" data-manual>GRAM TO</button><button data-closepick>Zamknij</button></div></div></div>`;
-  const f = () => { const q = $("#pq").value.toLowerCase(); $("#pl").innerHTML = S.lib.filter(t => !q || `${t.artist} ${t.title}`.toLowerCase().includes(q)).slice(0, 25).map(t => `<div class="item"><div><b>${esc(t.artist)} – ${esc(t.title)}</b><div class="mut">${Math.round(t.bpm || 0)} BPM • ${esc(t.key || "")} • E${Math.round(t.energy ?? 0)}</div></div><button class="sm gr" data-usecur="${t.id}">GRAM</button></div>`).join("") || '<div class="mut">Brak wyników</div>'; };
-  $("#pq").oninput = f; f();
-}
-const ALIAS = {artist: "artist", wykonawca: "artist", artysta: "artist", title: "title", "track title": "title", name: "title", "tytuł": "title", tytul: "title", bpm: "bpm", tempo: "bpm", key: "key", tonacja: "key", "key (camelot)": "key", "initial key": "key", energy: "energy", energia: "energy", genre: "genre", gatunek: "genre", subgenre: "subgenre", year: "year", rok: "year", "release year": "year", popularity: "popularity", "popularność": "popularity", popularnosc: "popularity", danceability: "danceability", vocal: "vocal", tags: "tags", source: "source"};
-function parseCSV(text) { text = text.replace(/^\uFEFF/, ""); const first = text.split(/\r?\n/)[0] || "", d = [";", "\t", ","].map(c => [c, first.split(c).length]).sort((a, b) => b[1] - a[1])[0][0];
-  const rows = []; let row = [], cur = "", q = false;
-  for (let i = 0; i < text.length; i++) { const ch = text[i];
-    if (q) { if (ch === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
-    else if (ch === '"') q = true; else if (ch === d) { row.push(cur); cur = ""; } else if (ch === "\n" || ch === "\r") { if (ch === "\r" && text[i + 1] === "\n") i++; row.push(cur); cur = ""; if (row.some(x => x.trim())) rows.push(row); row = []; } else cur += ch; }
-  row.push(cur); if (row.some(x => x.trim())) rows.push(row);
-  const head = (rows.shift() || []).map(h => h.trim().toLowerCase()); return rows.map(r => Object.fromEntries(head.map((h, i) => [h, r[i]]))); }
-function toTrack(r) { const d = {}; for (const [k, v] of Object.entries(r)) { const a = ALIAS[String(k).trim().toLowerCase()]; if (a && !(a in d)) d[a] = v; }
-  const artist = String(d.artist ?? "").trim(), title = String(d.title ?? "").trim(); if (!artist || !title) return null;
-  let e = num(d.energy, 60); if (e > 0 && e <= 10) e *= 10; const key = String(d.key ?? "").trim(), y = num(d.year, 0);
-  return {artist, title, bpm: num(d.bpm, null), key: E.normalizeKey(key) || key || null, energy: e, genre: String(d.genre ?? "").trim() || null, year: y ? Math.round(y) : null,
-    popularity: num(d.popularity, 50), danceability: num(d.danceability, 60), vocal: String(d.vocal || "vocal").toLowerCase(), tags: String(d.tags || "").split(/[;,]/).map(s => s.trim()).filter(Boolean), source: String(d.source || "import")}; }
-function addTracks(list) { const idx = new Map(S.lib.map(t => [(t.artist + "|" + t.title).toLowerCase(), t])); let add = 0, upd = 0;
-  for (const t of list) { const k = (t.artist + "|" + t.title).toLowerCase(), ex = idx.get(k); if (ex) { Object.assign(ex, Object.fromEntries(Object.entries(t).filter(([, v]) => v != null))); upd++; } else { t.id = S.nextId++; S.lib.push(t); idx.set(k, t); add++; } }
-  save(); return {add, upd}; }
-async function importFile(file) {
-  const buf = await file.arrayBuffer(); let text; try { text = new TextDecoder("utf-8", {fatal: true}).decode(buf); } catch (e) { text = new TextDecoder("windows-1250").decode(buf); }
-  try { let rows; const t = text.replace(/^\uFEFF/, "").trim();
-    if (t.startsWith("[") || t.startsWith("{")) { const j = JSON.parse(t); rows = Array.isArray(j) ? j : (j.tracks || []); } else rows = parseCSV(t);
-    const tr = rows.map(toTrack).filter(Boolean), r = addTracks(tr); toast(`Dodano ${r.add}, zaktualizowano ${r.upd}, pominięto ${rows.length - tr.length}`); render(); }
-  catch (e) { toast("Nie udało się odczytać pliku: " + e.message); }
+function testKey(){
+  toast("AI DJ Assistant działa");
 }
 
-/* ------------------------------------------------ render + zdarzenia */
-const NAV = [["play", "🎧", "GRAJ"], ["chat", "💬", "AI CHAT"], ["set", "📊", "SET"], ["lib", "🎵", "MUZYKA"], ["cfg", "⚙", "OPCJE"]];
-function render() {
-  const keep = tab === "cfg" || tab === "lib" ? window.scrollY : null;
-  $("#nav").innerHTML = NAV.map(([k, i, l]) => `<button class="${tab === k ? "on" : ""}" data-tab="${k}"><i>${i}</i>${l}</button>`).join("");
-  const focus = document.activeElement && document.activeElement.id, val = focus === "chatin" ? $("#chatin").value : null;
-  $("#view").innerHTML = ({play: vPlay, chat: vChat, set: vSet, lib: vLib, cfg: vSettings})[tab]();
-  if (tab === "lib") libList(); if (val !== null) { $("#chatin").value = val; $("#chatin").focus(); } if (keep !== null) window.scrollTo(0, keep);
+render();
+
+if(S.current){
+  refresh();
 }
-async function checkStageLinqModule() {
-  const out = $("#stagelinq-status");
-  if (!out) return;
-  const plugin = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StageLinq;
-  if (!plugin || typeof plugin.getNetworkStatus !== "function") {
-    out.textContent = "Moduł natywny niedostępny. Otwórz APK zbudowany przez zaktualizowany workflow GitHub Actions.";
-    return;
-  }
-  try {
-    const status = await plugin.getNetworkStatus();
-    out.textContent = status.stageLinqImplemented
-      ? "Moduł StageLinQ jest gotowy."
-      : "Moduł Android wykryty. " + status.message;
-  } catch (e) { out.textContent = "Błąd modułu: " + (e.message || String(e)); }
-}
-async function prepareStageLinqWifi() {
-  const out = $("#stagelinq-status");
-  const plugin = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StageLinq;
-  if (!plugin || typeof plugin.acquireMulticastLock !== "function") {
-    if (out) out.textContent = "Brak natywnego modułu. Zainstaluj APK z aktualnego workflow.";
-    return;
-  }
-  try {
-    await plugin.acquireMulticastLock();
-    if (out) out.textContent = "Obsługa multicast aktywna do zamknięcia aplikacji. To przygotowanie sieci, nie potwierdzenie połączenia z Denonem.";
-  } catch (e) { if (out) out.textContent = "Nie udało się przygotować Wi-Fi: " + (e.message || String(e)); }
-}
-document.addEventListener("click", ev => {
-  const b = ev.target.closest("button,[data-close]"); if (!b) return; const d = b.dataset;
-  if (d.close !== undefined && ev.target === b) { $("#sheet").innerHTML = ""; return; }
-  if (d.tab) { tab = d.tab; render(); window.scrollTo(0, 0); }
-  else if (d.mode) { S.mode = d.mode; view5 = false; refresh(); }
-  else if (d.a) act(d.a, d.id); else if (d.good) good(d.good);
-  else if (d.reason) applyReason(d.reason, d.id); else if (d.close2 !== undefined || d.closepick !== undefined) $("#sheet").innerHTML = "";
-  else if (d.pick !== undefined) pickSheet();
-  else if (d.usecur) { $("#sheet").innerHTML = ""; setCurrent(S.lib.find(t => t.id == d.usecur), {dj: "manual"}); tab = "play"; }
-  else if (d.setcur) { setCurrent(S.lib.find(t => t.id == d.setcur), {dj: "manual"}); tab = "play"; render(); }
-  else if (d.manual !== undefined) { const a = $("#m_a").value.trim(), t = $("#m_t").value.trim(); if (!a || !t) return toast("Wpisz artystę i tytuł");
-    const key = $("#m_k").value.trim(), tr = {artist: a, title: t, bpm: num($("#m_b").value, null), key: E.normalizeKey(key) || key || null, energy: num($("#m_e").value, 70), genre: $("#m_g").value.trim() || null, year: null, popularity: 50, danceability: 60, vocal: "vocal", tags: [], source: "manual"};
-    addTracks([tr]); $("#sheet").innerHTML = ""; setCurrent(S.lib.find(x => x.artist === a && x.title === t), {dj: "manual"}); }
-  else if (d.stagelinqCheck !== undefined) checkStageLinqModule();
-  else if (d.stagelinqMulticast !== undefined) prepareStageLinqWifi();
-  else if (d.q) quick(d.q);
-  else if (d.send !== undefined) sendChat();
-  else if (d.endset !== undefined) endSet();
-  else if (d.import !== undefined) $("#file").click();
-  else if (d.demo !== undefined) { const r = addTracks(window.DEMO_LIB.map(t => Object.assign({}, t))); toast(`Wczytano ${r.add} utworów demo`); render(); }
-  else if (d.fmt !== undefined) $("#sheet").innerHTML = `<div class="sheet" data-close><div><h2 style="margin-top:0">Wzór pliku CSV</h2><textarea rows="7" readonly>artist,title,bpm,key,energy,genre,year,source\nCalvin Harris,Summer,128,8A,84,Commercial Dance,2014,mojekatalog\nDavid Guetta,Przykład,128,9A,89,EDM,2020,mojekatalog</textarea><div class="mut" style="margin:8px 0">Kolumny mogą być w dowolnej kolejności; separator , lub ; ; BPM z przecinkiem OK; tonacja jako 8A albo Am; energia 1-10 (Mixed In Key) jest przeliczana na 1-100. Możliwe też: popularity, danceability, vocal, tags, subgenre. Poza artist i title wszystko jest opcjonalne.</div><button style="width:100%" data-close2>Zamknij</button></div></div>`;
-  else if (d.addtrack !== undefined) pickSheet();
-  else if (d.clearlib !== undefined) { if (confirm("Usunąć całą bibliotekę?")) { S.lib = []; S.current = null; recs = []; save(); render(); } }
-  else if (d.age) { toggle(S.crowd.age_groups, d.age); post(); } else if (d.mus) { toggle(S.crowd.music_preferences, d.mus); post(); }
-  else if (d.size) { S.crowd.crowd_size = d.size; post(); } else if (d.event) { S.crowd.event_type = d.event; post(); }
-  else if (d.toggleai !== undefined) { S.cfg.useAI = !S.cfg.useAI; post(); }
-  else if (d.testkey !== undefined) testKey();
-  else if (d.wreset !== undefined) { S.weights = Object.assign({}, E.DEFAULT_WEIGHTS); post(); }
-  else if (d.resetprofile !== undefined) { S.profile = {g: {}, a: {}, bpm: []}; post(); } else if (d.clearbl !== undefined) { S.blacklist = []; post(); }
-  else if (d.resetall !== undefined) { if (confirm("Na pewno usunąć wszystko (biblioteka, sety, profil, klucz)?")) { localStorage.removeItem(KEY); S = DEF(); S.mods = E.parseCommand(""); recs = []; render(); } }
-});
-function toggle(arr, v) { const i = arr.indexOf(v); if (i >= 0) arr.splice(i, 1); else arr.push(v); }
-function post() { save(); render(); if (tab === "cfg") return; }
-document.addEventListener("input", ev => { const t = ev.target;
-  if (t.id === "apikey") { S.cfg.apiKey = t.value.trim(); save(); } else if (t.id === "model") { S.cfg.model = t.value.trim() || "gpt-4o-mini"; save(); }
-  else if (t.id === "hourov") { S.cfg.hourOverride = t.value.trim(); save(); } else if (t.id === "crowden") { S.crowd.crowd_energy = +t.value; $("#cev").textContent = t.value; save(); }
-  else if (t.dataset.w) { S.weights[t.dataset.w] = +t.value / 100; $("#wv_" + t.dataset.w).textContent = t.value + "%"; save(); }
-  else if (t.id === "libq") libList(); });
-document.addEventListener("change", ev => { if (ev.target.id === "file" && ev.target.files[0]) importFile(ev.target.files[0]); });
-document.addEventListener("keydown", ev => { if (ev.key === "Enter" && ev.target.id === "chatin") sendChat(); });
-function quick(q) {
-  view5 = q === "next5" ? !view5 : (q === "clear" ? view5 : false);
-  if (q === "raise") cmd("zwiększ energię"); else if (q === "lower") cmd("zejdź z energii"); else if (q === "keepbpm") { S.mods.bpm_lock = !S.mods.bpm_lock; if (S.mods.bpm_lock) S.mods.widen_bpm = false; refresh(); }
-  else if (q === "changebpm") { S.mods.widen_bpm = !S.mods.widen_bpm; if (S.mods.widen_bpm) S.mods.bpm_lock = false; refresh(); } else if (q === "genre") cmd("zmień gatunek");
-  else if (q === "surprise") cmd("surprise me"); else if (q === "peak") { S.mode = "PEAK TIME"; cmd("peak time"); } else if (q === "emergency") { cmd("parkiet umiera"); toast("EMERGENCY: hity + danceability"); }
-  else if (q === "clear") { S.mods = E.parseCommand(""); refresh(); } else if (q === "next5") refresh();
-}
-function endSet() {
-  if (!S.history.length) return toast("Set jest pusty"); const s = stats(S.history);
-  $("#sheet").innerHTML = `<div class="sheet"><div><h2 style="margin-top:0">SET ANALYTICS</h2>${statsHtml(S.history)}<button class="pk" style="width:100%;margin-top:10px" data-savenew>ZAPISZ I ROZPOCZNIJ NOWY SET</button><button style="width:100%;margin-top:8px" data-close2>Wróć</button></div></div>`;
-  $("[data-savenew]").onclick = () => { S.sets.push({start: S.history[0].ts, n: s.n, avgBpm: s.avgBpm, avgE: s.avgE, eff: s.eff}); S.history = []; S.played = []; S.rejected = []; S.recLog = {accepted: 0, rejected: 0, shown: 0}; S.mods = E.parseCommand(""); S.current = null; recs = []; $("#sheet").innerHTML = ""; save(); tab = "play"; render(); };
-}
-async function testKey() {
-  if (!S.cfg.apiKey) return toast("Wpisz klucz API");
-  try { const r = await fetch("https://api.openai.com/v1/models/" + encodeURIComponent(S.cfg.model), {headers: {Authorization: "Bearer " + S.cfg.apiKey}});
-    toast(r.ok ? "✅ Klucz działa" : r.status === 401 ? "❌ Klucz nieprawidłowy" : r.status === 404 ? "❌ Model nie istnieje / brak dostępu" : r.status === 429 ? "❌ Limit / brak środków" : "❌ Błąd " + r.status); }
-  catch (e) { toast("❌ Brak internetu"); }
-}
-render(); if (S.current) refresh();
-window.__S = () => S; window.__refresh = refresh;
 </script>
 </body>
 </html>
